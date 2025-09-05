@@ -1,0 +1,3 @@
+[submodule "codex-tools"]
+	path = codex-tools
+	url = https://github.com/internalthought/codex-tools.git
