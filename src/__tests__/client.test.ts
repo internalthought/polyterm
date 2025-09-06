@@ -23,3 +23,23 @@ test('HttpPolymarketClient.searchMarkets builds correct URL and returns JSON', a
   assert.equal(res.markets![0].slug, 'rain');
 });
 
+test('HttpPolymarketClient.getMarketBySlug and getMarketById call correct endpoints', async () => {
+  const calls: string[] = [];
+  const fakeFetch = async (input: RequestInfo | URL): Promise<Response> => {
+    const u = typeof input === 'string' ? new URL(input) : new URL(input.toString());
+    calls.push(u.toString());
+    const body = JSON.stringify({ id: '1', slug: 'rain', title: 'Will it rain?' });
+    return new Response(body, { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+
+  const client = new HttpPolymarketClient({ baseURL: 'https://api.pm', fetch: fakeFetch as any });
+  const bySlug = await client.getMarketBySlug('rain');
+  const byId = await client.getMarketById('123');
+  assert.equal(calls.length, 2);
+  const u1 = new URL(calls[0]);
+  const u2 = new URL(calls[1]);
+  assert.equal(u1.pathname, '/markets/slug/rain');
+  assert.equal(u2.pathname, '/markets/123');
+  assert.equal(bySlug.slug, 'rain');
+  assert.equal(byId.id, '1');
+});

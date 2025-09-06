@@ -19,6 +19,8 @@ export type RawSearchResponse = {
 
 export interface PolymarketClient {
   searchMarkets(query: string): Promise<RawSearchResponse>;
+  getMarketById?(id: string): Promise<RawSearchMarket>;
+  getMarketBySlug?(slug: string): Promise<RawSearchMarket>;
 }
 
 export type MarketRef = { id?: string; slug?: string } | null;
@@ -94,4 +96,8 @@ export function normalizeSearch(res: RawSearchResponse): Market[] {
     if (norm) out.push(norm);
   }
   return out;
+}
+
+export function normalizeMarketDetail(raw: RawSearchMarket): Market | null {
+  return normalizeMarket(raw);
 }

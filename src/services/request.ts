@@ -19,3 +19,14 @@ export function buildPolymarketSearchURL(base: string, query: string, opts: Sear
   return u.toString();
 }
 
+export function buildGetMarketByIdURL(base: string, id: string): string {
+  const root = base.endsWith('/') ? base.slice(0, -1) : base;
+  const u = new URL(`/markets/${encodeURIComponent(id)}`, root);
+  return u.toString();
+}
+
+export function buildGetMarketBySlugURL(base: string, slug: string): string {
+  const root = base.endsWith('/') ? base.slice(0, -1) : base;
+  const u = new URL(`/markets/slug/${encodeURIComponent(slug)}`, root);
+  return u.toString();
+}

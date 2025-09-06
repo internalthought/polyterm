@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPolymarketSearchURL } from '../services/request.js';
+import { buildPolymarketSearchURL, buildGetMarketByIdURL, buildGetMarketBySlugURL } from '../services/request.js';
 
 test('buildPolymarketSearchURL builds URL with query and defaults', () => {
   const url = buildPolymarketSearchURL('https://api.polymarket.com', 'rain');
@@ -30,3 +30,13 @@ test('buildPolymarketSearchURL is resilient to base with/without slash', () => {
   assert.equal(new URL(b).pathname, '/search');
 });
 
+test('buildGetMarketByIdURL and buildGetMarketBySlugURL build expected paths', () => {
+  const idUrl = buildGetMarketByIdURL('https://api.pm', '123');
+  const slugUrl = buildGetMarketBySlugURL('https://api.pm/', 'will-it-rain');
+  const u1 = new URL(idUrl);
+  const u2 = new URL(slugUrl);
+  assert.equal(u1.origin, 'https://api.pm');
+  assert.equal(u1.pathname, '/markets/123');
+  assert.equal(u2.origin, 'https://api.pm');
+  assert.equal(u2.pathname, '/markets/slug/will-it-rain');
+});

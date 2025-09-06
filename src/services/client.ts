@@ -1,5 +1,5 @@
-import { buildPolymarketSearchURL } from './request.js';
-import type { RawSearchResponse, PolymarketClient } from './polymarket.js';
+import { buildPolymarketSearchURL, buildGetMarketByIdURL, buildGetMarketBySlugURL } from './request.js';
+import type { RawSearchResponse, PolymarketClient, RawSearchMarket } from './polymarket.js';
 
 export type HttpClientOptions = {
   baseURL: string;
@@ -29,5 +29,18 @@ export class HttpPolymarketClient implements PolymarketClient {
     }
     return (await res.json()) as RawSearchResponse;
   }
-}
 
+  async getMarketById(id: string): Promise<RawSearchMarket> {
+    const url = buildGetMarketByIdURL(this.baseURL, id);
+    const res = await this.fetchFn(url, { headers: this.headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return (await res.json()) as RawSearchMarket;
+  }
+
+  async getMarketBySlug(slug: string): Promise<RawSearchMarket> {
+    const url = buildGetMarketBySlugURL(this.baseURL, slug);
+    const res = await this.fetchFn(url, { headers: this.headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return (await res.json()) as RawSearchMarket;
+  }
+}
