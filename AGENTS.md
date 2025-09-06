@@ -16,7 +16,7 @@ The agent is a highly capable software engineer and should use all available too
 All tool calls are executed via Python scripts located under each project's `tools/` directory.
 
 - `tools/git.py`: Perform Git operations (status, add, commit, push, pull, etc.).
-- `tools/test.py`: Run all tests or a specific subset/category.
+- `tools/test.py`: Run all tests or a specific subset/category. TypeScript-aware; supports timeouts and JSON output.
 - `tools/task.py`: Manage task lists and phases (list, create, edit, checkoff).
 - `tools/memorize.py`: Read and write “memories” into `AGENTS.md` files by scope.
 - `tools/reset.py`: Capture a reset summary and optionally spawn a fresh Codex session.
@@ -24,6 +24,8 @@ All tool calls are executed via Python scripts located under each project's `too
 - `tools/subagent.py`: Spawn a focused subagent session for a specific task, close on success.
 - `tools/plan.py`: Split a task into smaller steps and update tasks/phases accordingly.
 - `tools/document.py`: Append documentation of completed work to `LOG.md` files.
+ - `tools/exec.py`: Run any subprocess with timeouts, verbose streaming, and JSON results.
+ - `tools/doctor.py`: Diagnose (and optionally self-fix via Codex) the tools environment.
 
 ## Recommended Workflow
 
@@ -76,6 +78,15 @@ Examples:
   - `codex exec --full-auto "update CHANGELOG for next release"`
   - `codex --cd packages/api "Refactor service to async/await"`
 
+## Test Categories & Sandbox
+- Unit vs Integration: The Node tests are split.
+  - `npm run test:unit` runs fast, pure unit tests (no network/socket I/O).
+  - `npm run test:integration` runs server/HTTP tests that open a local socket.
+- Default in tools: When both scripts exist, `python3 tools/test.py` defaults to running unit tests to avoid hangs in restricted sandboxes. Use `--category integration` when you explicitly want integration tests.
+- JSON output: `python3 tools/test.py --json` returns a single JSON object with `ok`, `code`, `stdout`, `stderr`, and typecheck info.
+
+Tip: In CI or local dev with full permissions, run all with `npm test` or `node --test dist/**/*.test.js`.
+
 ### Profiles
 
 - Config location (portable): `.codex/config.toml` in repo. For global defaults, copy to `~/.codex/config.toml`.
@@ -99,14 +110,18 @@ Codex merges `AGENTS.md` from the following locations (top-down):
 ## Testing Conventions (Node.js)
 
 - Prefer `npm test` or the appropriate package manager (`yarn`, `pnpm`) based on lockfiles.
-- Frameworks supported: Jest, Mocha, Vitest (auto-detected when feasible).
+- Frameworks supported: Jest, Mocha, Vitest (auto-detected).
+- TypeScript-aware: If `tsconfig.json` or a `typescript` dep exists, `tools/test.py` runs `npx tsc --noEmit` by default before tests (override with `--no-typecheck`). For Mocha, `-r ts-node/register` is added automatically.
 - Categories are mapped to common scripts if present (e.g., `test:unit`, `test:integration`, `test:e2e`).
 - Use `--pattern` to focus a subset (e.g., Jest `-t`), or fallback to test file globs.
+- Timeouts: `--timeout <sec>` overall timeout; `--idle-timeout <sec>` for no-output stalls.
+- JSON: pass `--json` to receive a machine-readable result with `ok`, `code`, `stdout`, `stderr`, and typecheck details.
 
 ## Safety and Recovery
 
 - Use `tools/undo.py` to revert uncommitted changes (Git hard reset if repo). For non-Git repos, this tool is a no-op.
 - Use `tools/reset.py` to summarize the current context (tasks, git status) and start a fresh Codex session if needed.
+ - Use `tools/doctor.py` to run diagnostics; add `--self-fix` to let Codex attempt to repair tool issues automatically.
 
 ## Commit Discipline
 
@@ -128,11 +143,12 @@ Codex merges `AGENTS.md` from the following locations (top-down):
 - For each task:
   - Tests-first: Spawn a tests-only subagent (via `codex exec`) to add/adjust tests; verify they fail.
   - Implement: Spawn an implementation subagent to make the minimal code changes to go green.
-  - Verify: Run `tools/test.py` until all tests pass; retry implementation as needed.
-  - Commit: Stage and commit atomically with a descriptive message.
-  - Document: Append to `LOG.md` and add a memory in the relevant `AGENTS.md`.
-  - Advance: Mark task done and continue to the next.
+- Verify: Run `tools/test.py` until all tests pass; retry implementation as needed.
+- Commit: Stage and commit atomically with a descriptive message.
+- Document: Append to `LOG.md` and add a memory in the relevant `AGENTS.md`.
+- Advance: Mark task done and continue to the next.
 - Automated path: `tools/agent.py run-phase` executes this loop for each pending task in the phase.
+ - If the test runner is not detected, the agent auto-runs `tools/doctor.py --self-fix` to diagnose and attempt a repair.
 
 ## Feature Folders
 
@@ -143,10 +159,18 @@ Codex merges `AGENTS.md` from the following locations (top-down):
 
 ## Environment & Requirements
 
-- Node test runner available (npm `test` script or Jest/Vitest/Mocha installed).
+- Node test runner available (npm `test` script or Jest/Vitest/Mocha installed). For TypeScript + Mocha, ensure `ts-node` is present.
 - Python 3.9+ to execute tools; Git repo initialized.
 - Codex CLI installed (`npm i -g @openai/codex`) and on PATH.
 - API key configured (e.g., `OPENAI_API_KEY`) for Codex CLI.
+
+### Verbose Logs, Timeouts, and Diagnostics
+
+- Subprocesses: All tools use robust subprocess execution with streaming and logs.
+- Verbose: set `CODEX_VERBOSE=1` (or pass per-tool `--verbose` if available) to echo live output and show command banners.
+- Timeouts: configure defaults via env — `CODEX_CMD_TIMEOUT_SEC` (overall) and `CODEX_IDLE_TIMEOUT_SEC` (no-output). Per-tool flags override env.
+- Logs: JSONL entries are written under `.codex/logs/tools.log`. On timeout/hang, a detailed record is saved to `.codex/logs/hang_<ts>.json` with tail output.
+- Programmatic results: Many tools accept `--json` to print a single JSON object suitable for parsing in automation.
 
 ## Failure Handling
 
@@ -161,3 +185,32 @@ Codex merges `AGENTS.md` from the following locations (top-down):
 - Treat this AGENTS.md and the entire `tools/` folder as the project boilerplate.
 - Copy them into every new repository to bootstrap a consistent TDD development agent.
 - For each feature folder, add a scoped `AGENTS.md` to refine behavior for that area; the agent honors merged guidance.
+## Tool Quickstart
+
+- tools/exec.py: Run any subprocess with timeouts and JSON output.
+  - Example: `python3 tools/exec.py -- npx ts-node --version`
+  - With JSON: `python3 tools/exec.py --json -- npx jest -t "my test"`
+  - With timeouts: `python3 tools/exec.py --timeout 900 --idle-timeout 120 -- npx vitest run`
+
+- tools/test.py: TypeScript-aware test runner wrapper.
+  - Detect: `python3 tools/test.py --detect`
+  - All tests with TS typecheck: `python3 tools/test.py --timeout 900`
+  - Unit only: `python3 tools/test.py --category unit`
+  - Integration only: `python3 tools/test.py --category integration`
+  - Focused: `python3 tools/test.py --category unit --pattern "utils/date"`
+  - JSON result: `python3 tools/test.py --json`
+  - Skip typecheck: `python3 tools/test.py --no-typecheck`
+
+- tools/doctor.py: Diagnose and optionally self-fix the tools.
+  - Diagnostics JSON: `python3 tools/doctor.py --json`
+  - Attempt self-fix (uses Codex CLI): `python3 tools/doctor.py --self-fix`
+
+### Timeouts, Verbose Logs, Diagnostics
+
+- Env defaults: `CODEX_CMD_TIMEOUT_SEC`, `CODEX_IDLE_TIMEOUT_SEC`, `CODEX_VERBOSE=1`.
+- Logs: `.codex/logs/tools.log` (JSONL). Hang report: `.codex/logs/hang_<ts>.json`.
+- Enable live echo: set `CODEX_VERBOSE=1` or pass `--verbose` where supported.
+
+## Memories
+
+- [2025-09-06 03:08:58] (main) Server endpoints implemented: /api/search (limit/types), /api/resolve, /api/market, /api/price, /api/midpoint, /api/book, /api/trades. Tests: 23 unit tests using Node test runner; TS builds to dist before tests (pretest:unit). Env: set POLYMARKET_API_BASE to enable real HTTP client.
