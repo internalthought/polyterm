@@ -21,8 +21,11 @@ export class HttpPolymarketClient implements PolymarketClient {
     }
   }
 
-  async searchMarkets(query: string): Promise<RawSearchResponse> {
-    const url = buildPolymarketSearchURL(this.baseURL, query);
+  async searchMarkets(query: string, opts?: { limit?: number; types?: string[] }): Promise<RawSearchResponse> {
+    const url = buildPolymarketSearchURL(this.baseURL, query, {
+      limit: opts?.limit,
+      types: opts?.types as any,
+    });
     const res = await this.fetchFn(url, { headers: this.headers });
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);

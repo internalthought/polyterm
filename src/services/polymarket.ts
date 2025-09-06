@@ -18,7 +18,7 @@ export type RawSearchResponse = {
 };
 
 export interface PolymarketClient {
-  searchMarkets(query: string): Promise<RawSearchResponse>;
+  searchMarkets(query: string, opts?: { limit?: number; types?: string[] }): Promise<RawSearchResponse>;
   getMarketById?(id: string): Promise<RawSearchMarket>;
   getMarketBySlug?(slug: string): Promise<RawSearchMarket>;
 }

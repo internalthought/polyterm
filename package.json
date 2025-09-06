@@ -5,6 +5,7 @@
   "description": "MarketLens MVP data service and DTO library (Polymarket proxy)",
   "type": "module",
   "scripts": {
+    "pretest:unit": "npm run build",
     "build": "tsc -p tsconfig.json",
     "pretest": "npm run build",
     "test": "node --test \"dist/**/*.test.js\"",

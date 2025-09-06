@@ -26,6 +26,24 @@ test('handleSearch normalizes markets', async () => {
   assert.equal(data[0].volume, 5);
 });
 
+test('handleSearch parses limit/types and passes to client', async () => {
+  const seen: any[] = [];
+  const fakeClient = {
+    async searchMarkets(q: string, opts?: any) {
+      seen.push({ q, opts });
+      return { markets: [{ id: '1', slug: 'rain', question: 'Q' }] };
+    },
+  } as any;
+  const r = await handleSearch(
+    { client: fakeClient },
+    { q: 'rain', limit: '50', types: 'markets,events' } as any,
+  );
+  assert.equal(r.status, 200);
+  assert.equal(seen.length, 1);
+  assert.equal(seen[0].q, 'rain');
+  assert.deepEqual(seen[0].opts, { limit: 50, types: ['markets', 'events'] });
+});
+
 test('handleMarket returns upstream_error on client failure', async () => {
   const fakeClient = {
     async getMarketBySlug(_s: string) { throw new Error('boom'); },
@@ -34,4 +52,3 @@ test('handleMarket returns upstream_error on client failure', async () => {
   assert.equal(r.status, 502);
   assert.equal((r.payload as any).error, 'upstream_error');
 });
-

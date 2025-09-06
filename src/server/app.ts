@@ -14,11 +14,32 @@ export async function handleResolve(params: { input?: string }) {
   return { status: 200, payload: ref } as const;
 }
 
-export async function handleSearch(deps: AppDeps, params: { q?: string }) {
+export async function handleSearch(
+  deps: AppDeps,
+  params: { q?: string; limit?: number | string; types?: string | string[] },
+) {
   const q = (params.q ?? '').toString().trim();
   if (!q) return { status: 400, payload: { error: 'missing q' } } as const;
+  // Parse optional params
+  const opts: any = {};
+  if (params.limit != null) {
+    const n = Number.parseInt(params.limit as any, 10);
+    if (Number.isFinite(n) && n > 0) opts.limit = n;
+  }
+  if (params.types != null) {
+    const raw = Array.isArray(params.types)
+      ? params.types.join(',')
+      : (params.types as string);
+    const allowed = new Set(['markets', 'events', 'profiles']);
+    const list = raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => !!s && allowed.has(s));
+    if (list.length > 0) opts.types = list;
+  }
   try {
-    const raw = await deps.client.searchMarkets(q);
+    // @ts-ignore allow optional opts for clients that support it
+    const raw = await deps.client.searchMarkets(q, Object.keys(opts).length ? opts : undefined);
     const data = normalizeSearch(raw);
     return { status: 200, payload: { data } } as const;
   } catch (err: any) {
@@ -58,7 +79,9 @@ export function createServer(deps: AppDeps) {
     // Search proxy (normalized)
     if (req.method === 'GET' && parsed.pathname === '/api/search') {
       const q = (parsed.query['q'] ?? '').toString();
-      const result = await handleSearch(deps, { q });
+      const limit = parsed.query['limit'] as any;
+      const types = parsed.query['types'] as any;
+      const result = await handleSearch(deps, { q, limit, types });
       res.writeHead(result.status);
       res.end(JSON.stringify(result.payload));
       return;
