@@ -13,11 +13,13 @@ Endpoints
 - `GET /health` → `{ ok: true }`
 - `GET /api/search?q=<query>` → `{ data: Market[] }`
  - `GET /api/resolve?input=<url|slug|id>` → `{ slug? id? }` (alias: `/api/market/resolve`)
+ - `GET /api/market?input=<url|slug|id>` → `{ data: Market }`
 
 Implementation Notes
 - URL parsing: `extractMarketRef(input)` returns `{ slug }` or `{ id }` from plain input or market URLs.
 - Search: `buildPolymarketSearchURL(base, query, opts?)` constructs upstream URL; the HTTP client uses it.
 - Client: `HttpPolymarketClient` (injectable `fetch`) powers the server when `POLYMARKET_API_BASE` is set.
+- Market detail: `handleMarket(deps, { input })` resolves slug/id then calls client `getMarketBySlug`/`getMarketById` and normalizes.
 - DTOs and normalization live under `src/domain` and `src/services`.
 
 Testing
