@@ -18,6 +18,7 @@ Endpoints
 - `GET /api/midpoint?tokenId=<id>` → `{ data: { tokenId, midpoint, ts? } }`
  - `GET /api/book?tokenId=<id>&depth=<n?>` → `{ data: { tokenId, bids: Level[], asks: Level[], ts?, seq } }`
  - `GET /api/trades?tokenId=<id>&limit=<n?>` → `{ data: Trade[] }`
+  - `GET /api/spread?tokenId=<id>` → `{ data: { tokenId, bid, ask, midpoint, spread } }` (uses upstream spreads or derives from top-of-book)
   - `GET /api/history?tokenId=<id>&interval=<1m|5m|1h|1d>&limit=<n?>&from=<iso>&to=<iso>` → `{ data: Array<{ ts, price }> }`
   - `GET /api/tags` → `{ data: string[] }`
 
@@ -27,6 +28,7 @@ Implementation Notes
 - Client: `HttpPolymarketClient` (injectable `fetch`) powers the server when `POLYMARKET_API_BASE` is set.
   - Also supports: `listTags()` using `buildGetTagsURL(base)`.
   - Price history: `getPriceHistory(tokenId, { interval?, limit?, fromTs?, toTs? })` via `buildGetPriceHistoryURL(base, tokenId, opts)`.
+  - Spreads: `getSpreads(tokenId)` via `buildGetSpreadsURL(base, tokenId)`; server falls back to book snapshot if not available.
 - Market detail: `handleMarket(deps, { input })` resolves slug/id then calls client `getMarketBySlug`/`getMarketById` and normalizes.
 - Prices: `handlePrice`/`handleMidpoint` call client `getLastPrice`/`getMidpoint` with numeric normalization.
  - Order book: `handleBook` fetches snapshot with optional `depth`, normalizes numeric levels.

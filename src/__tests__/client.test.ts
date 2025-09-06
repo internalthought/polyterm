@@ -154,3 +154,22 @@ test('HttpPolymarketClient.getPriceHistory normalizes to [{ ts, price }]', async
   assert.deepEqual(points[0], { ts: '2025-01-01T00:00:00Z', price: 0.4 });
   assert.deepEqual(points[1], { ts: '2025-01-01T01:00:00Z', price: 0.41 });
 });
+
+test('HttpPolymarketClient.getSpreads normalizes bid/ask', async () => {
+  const calls: string[] = [];
+  const fakeFetch = async (input: RequestInfo | URL): Promise<Response> => {
+    const u = typeof input === 'string' ? new URL(input) : new URL(input.toString());
+    calls.push(u.toString());
+    if (u.pathname === '/spreads/tok') {
+      return new Response(JSON.stringify({ bid: '0.40', ask: 0.60 }), { status: 200 });
+    }
+    return new Response('{}', { status: 404 });
+  };
+  const client = new HttpPolymarketClient({ baseURL: 'https://api.pm', fetch: fakeFetch as any });
+  const s = await (client as any).getSpreads('tok');
+  assert.equal(calls.length, 1);
+  const u = new URL(calls[0]);
+  assert.equal(u.pathname, '/spreads/tok');
+  assert.equal(s.bid, 0.4);
+  assert.equal(s.ask, 0.6);
+});

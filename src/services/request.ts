@@ -76,3 +76,9 @@ export function buildGetPriceHistoryURL(
   if (opts.toTs) u.searchParams.set('to', opts.toTs);
   return u.toString();
 }
+
+export function buildGetSpreadsURL(base: string, tokenId: string): string {
+  const root = base.endsWith('/') ? base.slice(0, -1) : base;
+  const u = new URL(`/spreads/${encodeURIComponent(tokenId)}`, root);
+  return u.toString();
+}

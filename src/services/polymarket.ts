@@ -27,6 +27,7 @@ export interface PolymarketClient {
   getRecentTrades?(tokenId: string, opts?: { limit?: number }): Promise<any>;
   listTags?(): Promise<string[]>;
   getPriceHistory?(tokenId: string, opts?: { interval?: string; limit?: number; fromTs?: string; toTs?: string }): Promise<Array<{ ts: string; price: number }>>;
+  getSpreads?(tokenId: string): Promise<{ tokenId: string; bid?: number | string | null; ask?: number | string | null }>;
 }
 
 export type MarketRef = { id?: string; slug?: string } | null;

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { handleSearch, handleMarket, handleBook, handleTrades } from '../server/app.js';
 import { handlePrice, handleMidpoint } from '../server/app.js';
+import { handleSpread } from '../server/app.js';
 import { handleHistory } from '../server/app.js';
 import { handleTags } from '../server/app.js';
 
@@ -137,4 +138,32 @@ test('handleHistory requires tokenId and passes interval/limit', async () => {
   assert.equal(r.status, 200);
   assert.deepEqual(seen[0], { tokenId: 'tok', opts: { interval: '1h', limit: 100 } });
   assert.equal((r.payload as any).data[0].price, 0.4);
+});
+
+test('handleSpread computes from book when upstream not available', async () => {
+  const fakeClient = {
+    async getBookSnapshot(tokenId: string) {
+      return { tokenId, bids: [["0.45","10"], ["0.44","5"]], asks: [["0.55","8"], ["0.56","7"]], ts: 't', seq: 1 };
+    },
+  } as any;
+  const r = await handleSpread({ client: fakeClient } as any, { tokenId: 'tok' } as any);
+  assert.equal(r.status, 200);
+  const data = (r.payload as any).data;
+  assert.equal(data.bid, 0.45);
+  assert.equal(data.ask, 0.55);
+  assert.equal(data.midpoint, 0.5);
+  assert.equal(data.spread, 0.10);
+});
+
+test('handleSpread uses upstream spreads when available', async () => {
+  const fakeClient = {
+    async getSpreads(tokenId: string) { return { tokenId, bid: '0.40', ask: '0.60' }; },
+  } as any;
+  const r = await handleSpread({ client: fakeClient } as any, { tokenId: 'tok' } as any);
+  const data = (r.payload as any).data;
+  assert.equal(r.status, 200);
+  assert.equal(data.bid, 0.4);
+  assert.equal(data.ask, 0.6);
+  assert.equal(data.midpoint, 0.5);
+  assert.equal(data.spread, 0.2);
 });

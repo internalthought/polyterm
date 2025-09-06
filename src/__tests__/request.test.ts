@@ -8,6 +8,7 @@ import {
   buildGetMidpointURL,
   buildGetTagsURL,
   buildGetPriceHistoryURL,
+  buildGetSpreadsURL,
 } from '../services/request.js';
 
 test('buildPolymarketSearchURL builds URL with query and defaults', () => {
@@ -71,4 +72,11 @@ test('buildGetPriceHistoryURL builds expected path and query', () => {
   assert.equal(u.pathname, '/prices/history/tok123');
   assert.equal(u.searchParams.get('interval'), '1h');
   assert.equal(u.searchParams.get('limit'), '500');
+});
+
+test('buildGetSpreadsURL builds expected path', () => {
+  const url = buildGetSpreadsURL('https://api.pm/', 'tok123');
+  const u = new URL(url);
+  assert.equal(u.origin, 'https://api.pm');
+  assert.equal(u.pathname, '/spreads/tok123');
 });

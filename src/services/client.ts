@@ -8,6 +8,7 @@ import {
   buildGetTradesURL,
   buildGetPriceHistoryURL,
   buildGetTagsURL,
+  buildGetSpreadsURL,
 } from './request.js';
 import type { RawSearchResponse, PolymarketClient, RawSearchMarket } from './polymarket.js';
 
@@ -140,5 +141,15 @@ export class HttpPolymarketClient implements PolymarketClient {
         ? j.data
         : [];
     return arr.map((p: any) => ({ ts: String(p.ts ?? p.time ?? p.t ?? ''), price: Number(p.price ?? p.p) })).filter((p) => !!p.ts && Number.isFinite(p.price));
+  }
+
+  async getSpreads(tokenId: string): Promise<{ tokenId: string; bid: number | null; ask: number | null }> {
+    const url = buildGetSpreadsURL(this.baseURL, tokenId);
+    const res = await this.fetchFn(url, { headers: this.headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const j = (await res.json()) as any;
+    const bid = j?.bid != null ? Number(j.bid) : null;
+    const ask = j?.ask != null ? Number(j.ask) : null;
+    return { tokenId: String(j?.tokenId ?? tokenId), bid, ask };
   }
 }

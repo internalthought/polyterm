@@ -21,3 +21,7 @@
 ## Price history endpoint
 
 - 2025-09-06 03:48:00: Added `/api/history` with interval/limit/from/to support, client `getPriceHistory`, and `buildGetPriceHistoryURL`. New unit tests added for URL builder, client normalization, and handler options. All unit tests passing (30).
+
+## Spreads endpoint
+
+- 2025-09-06 04:00:00: Added `/api/spread` that prefers upstream spreads but derives from top-of-book when absent; implemented client `getSpreads` and `buildGetSpreadsURL`. Added unit tests for URL builder, client normalization, and handler (both paths). All unit tests passing (34).

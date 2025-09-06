@@ -172,6 +172,38 @@ export async function handleHistory(
     return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
   }
 }
+
+export async function handleSpread(
+  deps: AppDeps,
+  params: { tokenId?: string },
+) {
+  const tokenId = (params.tokenId ?? '').trim();
+  if (!tokenId) return { status: 400, payload: { error: 'missing tokenId' } } as const;
+  try {
+    // Prefer upstream spreads if available
+    let bid: number | null | undefined;
+    let ask: number | null | undefined;
+    if (deps.client.getSpreads) {
+      const s = await deps.client.getSpreads(tokenId as string);
+      bid = s?.bid != null ? Number(s.bid) : null;
+      ask = s?.ask != null ? Number(s.ask) : null;
+    }
+    if (bid == null || ask == null) {
+      const book = await deps.client.getBookSnapshot?.(tokenId as string, { depth: 1 });
+      const pickPrice = (x: any) => Number(x?.price ?? (Array.isArray(x) ? x[0] : undefined));
+      const bestBid = pickPrice((book as any)?.bids?.[0]);
+      const bestAsk = pickPrice((book as any)?.asks?.[0]);
+      bid = Number.isFinite(bestBid) ? bestBid : null;
+      ask = Number.isFinite(bestAsk) ? bestAsk : null;
+    }
+    const midpoint = bid != null && ask != null ? (bid + ask) / 2 : null;
+    const spread = bid != null && ask != null ? Number((Math.abs(ask - bid)).toFixed(6)) : null;
+    const data = { tokenId, bid, ask, midpoint, spread };
+    return { status: 200, payload: { data } } as const;
+  } catch (err: any) {
+    return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
+  }
+}
 export function createServer(deps: AppDeps) {
   const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const parsed = url.parse(req.url ?? '', true);
@@ -263,6 +295,14 @@ export function createServer(deps: AppDeps) {
       const fromTs = (parsed.query['from'] ?? '').toString() || undefined;
       const toTs = (parsed.query['to'] ?? '').toString() || undefined;
       const result = await handleHistory(deps, { tokenId, interval, limit, fromTs, toTs });
+      res.writeHead(result.status);
+      res.end(JSON.stringify(result.payload));
+      return;
+    }
+
+    if (req.method === 'GET' && parsed.pathname === '/api/spread') {
+      const tokenId = (parsed.query['tokenId'] ?? '').toString();
+      const result = await handleSpread(deps, { tokenId });
       res.writeHead(result.status);
       res.end(JSON.stringify(result.payload));
       return;
