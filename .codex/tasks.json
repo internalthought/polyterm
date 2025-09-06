@@ -1,0 +1,1133 @@
+{
+  "phases": [
+    {
+      "name": "MVP Acceptance Tests",
+      "tasks": [
+        {
+          "id": "8b9f9ea8",
+          "title": "1. Add by URL",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "a82527bc",
+          "title": "Given a valid Polymarket market URL, When pasted and submitted, Then the app resolves slug/id and renders a tile within 2s with metadata and last price",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "f2d5c1ce",
+          "title": "2. Search and Add",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "b82f08eb",
+          "title": "Given a query string, When searching, Then at least 5 results render with title and last price; When selecting one, Then a tile appears and live data begins",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "f68d945b",
+          "title": "3. Live Price Stream",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "92c224da",
+          "title": "Given an open tile, When upstream sends price ticks, Then the tile price updates within \u22641.5s p95 and sparkline advances",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "1f16df7f",
+          "title": "4. Order Book Consistency",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "4f920d60",
+          "title": "Given a fresh snapshot, When deltas apply, Then cumulative size per level matches server summaries; no negative sizes; seq strictly increases",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "789551b6",
+          "title": "5. Reconnect & Backfill",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "28624ea8",
+          "title": "Given a network loss \u226510s, When reconnected, Then books and trades are consistent after an HTTP snapshot + buffered deltas",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "280c653c",
+          "title": "6. Persistence",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        },
+        {
+          "id": "d66962c0",
+          "title": "Given two tiles open, When refreshing the page, Then the same tiles restore and begin streaming automatically",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:24:09"
+        }
+      ],
+      "created": "2025-09-06 02:24:09"
+    },
+    {
+      "name": "Initial Plan",
+      "tasks": [
+        {
+          "id": "4a538652",
+          "title": "MarketLens PRD (MVP) \u2014 Polymarket Data-First",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "6d6dbf2a",
+          "title": "Date: September 6, 2025",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "f793a4b2",
+          "title": "Summary",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "5fa0f531",
+          "title": "MarketLens is a professional, multi-market monitoring dashboard for Polymarket. The MVP is read-only, streaming-centric, and built entirely on official Polymarket APIs and CLOB WebSockets documented under `tools/polymarket_docs`. No scraping or reverse\u2011engineering",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "10a2900d",
+          "title": "Goals",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "29aead7f",
+          "title": "Validate that active traders keep a multi-market view open for extended periods",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "b97e8d0d",
+          "title": "Deliver accurate, low-latency market data (prices, books, trades) via official APIs",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "85273ae6",
+          "title": "Ship a foundation suitable for adding trading and portfolios later without rework",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "80c75c93",
+          "title": "Success Metrics (MVP)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "0e8c339c",
+          "title": "100+ weekly active users within 30 days of launch",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "c196eed0",
+          "title": "Median session length \u2265 30 minutes with \u2265 3 concurrent markets watched",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "218015ea",
+          "title": "Data freshness: 95th percentile end-to-end update latency \u2264 1.5s from CLOB tick",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "3326274b",
+          "title": "Non-Goals (MVP)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "fa4af230",
+          "title": "No wallet connect or trading execution (user channel, order placement) yet",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "c07a5142",
+          "title": "No user accounts; configuration persisted locally only",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "1b2fdd11",
+          "title": "No alerts/notifications, backtesting, or advanced charting",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "4fcb15c0",
+          "title": "Primary Persona",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "aeccedbc",
+          "title": "Informed Enthusiast: watches multiple markets simultaneously; needs a consolidated, real\u2011time view with trustworthy data and simple controls",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "b86998c2",
+          "title": "Functional Scope",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "d481663f",
+          "title": "1) Market Discovery & Selection",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "c3b1b5f3",
+          "title": "Paste a Polymarket URL or search by keyword/tag",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "bfb315a4",
+          "title": "Show instant results with key metadata and last price",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "94c579d4",
+          "title": "Add/remove selected markets to a watch grid",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "9a1babca",
+          "title": "APIs (docs in `tools/polymarket_docs`):",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "307ea862",
+          "title": "Search: `api_search_search-markets-events-and-profiles.md`",
+          "done": true,
+          "notes": "",
+          "created": "2025-09-06 02:41:38",
+          "completed": "2025-09-06 03:08:45"
+        },
+        {
+          "id": "c60e9172",
+          "title": "Markets detail: `api_markets_get-market-by-id.md`, `api_markets_get-market-by-slug.md`",
+          "done": true,
+          "notes": "",
+          "created": "2025-09-06 02:41:38",
+          "completed": "2025-09-06 03:08:45"
+        },
+        {
+          "id": "86799869",
+          "title": "Events/series (optional context): `api_events_get-event-by-id.md`, `api_series_get-series-by-id.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "00694025",
+          "title": "Acceptance Criteria",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "73b85018",
+          "title": "Given a query, when searching, then results include markets with `title`, `slug`, `volume`, and `openInterest` where available",
+          "done": true,
+          "notes": "",
+          "created": "2025-09-06 02:41:38",
+          "completed": "2025-09-06 02:58:52"
+        },
+        {
+          "id": "2ba00de6",
+          "title": "Given a market URL, when pasted, then the app resolves slug/id and loads market metadata without a full reload",
+          "done": true,
+          "notes": "",
+          "created": "2025-09-06 02:41:38",
+          "completed": "2025-09-06 02:58:52"
+        },
+        {
+          "id": "f99384c1",
+          "title": "2) Market Tiles (Watch Grid)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "4c1e7beb",
+          "title": "Each watched market renders as a tile showing:",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "db0bcd05",
+          "title": "Title, status (active/closed), end date, volume, OI",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "30fd5dac",
+          "title": "Last price (Yes/No) and midpoint; 24h change if available",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "c1ac437b",
+          "title": "Live sparkline with recent prices",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "977a1c6d",
+          "title": "Collapsible sections: Order Book (top levels) and Trades (recent)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "285ad4c1",
+          "title": "APIs",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "481c8497",
+          "title": "Prices: `api_pricing_get-market-price.md`, `api_pricing_get-midpoint-price.md`, `api_pricing_get-price-history-for-a-traded-token.md`",
+          "done": true,
+          "notes": "",
+          "created": "2025-09-06 02:41:38",
+          "completed": "2025-09-06 03:08:45"
+        },
+        {
+          "id": "7e1f38e0",
+          "title": "Spreads: `api_spreads_get-bid-ask-spreads.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "08983595",
+          "title": "Books (HTTP snapshot): `clob_prices-books_get-book.md`, `clob_prices-books_get-books.md`",
+          "done": true,
+          "notes": "",
+          "created": "2025-09-06 02:41:38",
+          "completed": "2025-09-06 03:08:45"
+        },
+        {
+          "id": "641d12dc",
+          "title": "Trades (HTTP snapshot/overview): `clob_trades_trades.md`, `api_core_get-trades-for-a-user-or-markets.md`",
+          "done": true,
+          "notes": "",
+          "created": "2025-09-06 02:41:38",
+          "completed": "2025-09-06 03:08:45"
+        },
+        {
+          "id": "5019c747",
+          "title": "Acceptance Criteria",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "d4dad784",
+          "title": "Given a market id (token_id), when requesting price, then the tile shows last price and midpoint and updates via WebSocket without manual refresh",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "9145f1af",
+          "title": "Given a tile is expanded, when loading the order book, then show at least top 10 bid/ask levels with aggregated size",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "74896fb8",
+          "title": "Given new trades occur, when subscribed, then show an auto-scrolling feed with side, price, size, and time",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "31e8c0db",
+          "title": "3) Live Updates (Streaming)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "54c78996",
+          "title": "Subscribe per watched market for price ticks, book deltas, and trades",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "264107c6",
+          "title": "Recover from disconnects automatically; backfill with HTTP snapshot on resume",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "a67c695d",
+          "title": "WebSocket Docs",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "60d60dc8",
+          "title": "Overview and auth: `clob_websocket_wss-overview.md`, `clob_websocket_wss-auth.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "d04a5b32",
+          "title": "Market channel topics: `clob_websocket_market-channel.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "2801de6e",
+          "title": "Status: `clob_status.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "04db64ae",
+          "title": "Acceptance Criteria",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "a2e76bc0",
+          "title": "When the socket disconnects, reconnect within 5 seconds and resubscribe; no duplicate rows; book remains internally consistent (snapshot + deltas)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "11d454b1",
+          "title": "When resuming after >30s gap, fetch a fresh HTTP snapshot for books then apply buffered deltas in order by sequence",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "2b851140",
+          "title": "4) Local Persistence",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "7ddd0c2f",
+          "title": "Store the user\u2019s watchlist and layout in localStorage; restore on page load",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "c6926910",
+          "title": "Acceptance Criteria",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "5cc3c607",
+          "title": "When reloading the app, previously watched markets reappear in the same positions with live feeds reconnected",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "e2ec1bea",
+          "title": "System Design",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "1ef2a4b2",
+          "title": "Architecture",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "105f23c4",
+          "title": "WebApp (SPA): React + lightweight charts; connects to a thin Node proxy",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "7d420bdd",
+          "title": "Data Service (Node):",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "8d28f48a",
+          "title": "HTTP fan\u2011out with caching and rate\u2011limit protection for official APIs",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "2901f145",
+          "title": "WebSocket multiplexing: one upstream per market, many downstream clients",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "052b8361",
+          "title": "Serves normalized DTOs to the SPA",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "98d1b110",
+          "title": "Data Sources and Mapping",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "21cd5992",
+          "title": "Discovery",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "fe36e8e8",
+          "title": "Search \u2192 `api_search_search-markets-events-and-profiles.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "72c8d403",
+          "title": "Tags (optional filters) \u2192 `api_tags_list-tags.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "c62cb577",
+          "title": "Market Metadata",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "48b973fa",
+          "title": "Get by slug/id \u2192 `api_markets_get-market-by-slug.md`, `api_markets_get-market-by-id.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "43f2b53c",
+          "title": "Pricing",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "e599d405",
+          "title": "Current/midpoint \u2192 `api_pricing_get-market-price.md`, `api_pricing_get-midpoint-price.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "9c77439c",
+          "title": "History \u2192 `api_pricing_get-price-history-for-a-traded-token.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "c8d02700",
+          "title": "Liquidity",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "04afc3b3",
+          "title": "Books snapshot \u2192 `clob_prices-books_get-book.md`, `clob_prices-books_get-books.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "d0848e17",
+          "title": "Spreads \u2192 `api_spreads_get-bid-ask-spreads.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "ab9ecccb",
+          "title": "Trades",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "bbfb21b7",
+          "title": "Recent (HTTP) \u2192 `clob_trades_trades.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "7ecda9ac",
+          "title": "Stream (WS) \u2192 `clob_websocket_market-channel.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "fcac92ac",
+          "title": "Health & Limits",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "cf1dc8a5",
+          "title": "Health \u2192 `api_health_health-check.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "e04eae6b",
+          "title": "Rate limits \u2192 `quickstart_introduction_rate-limits.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "ebce50d7",
+          "title": "Normalization Contracts (DTOs)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "775de1a7",
+          "title": "Market: `{ id, slug, title, endTime, status, volume, openInterest, tokenIds[] }`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "5400686e",
+          "title": "PriceTick: `{ tokenId, side, price, ts }`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "12ede600",
+          "title": "BookLevel: `{ price, size }`, Book: `{ tokenId, bids: BookLevel[], asks: BookLevel[], ts, seq }`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "a2bc1b05",
+          "title": "Trade: `{ tokenId, side, price, size, ts, tradeId }`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "106c12f7",
+          "title": "Performance & Resilience",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "bd5f962d",
+          "title": "Cache TTLs: price (1\u20132s), books (snapshot on demand), metadata (5\u201315m)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "2bbdc009",
+          "title": "Socket backoff: 1s, 2s, 5s, then steady 5s",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "0ec25433",
+          "title": "Book integrity: snapshot + monotonic `seq`; drop/repair out-of-order deltas",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "f9c74fc0",
+          "title": "UX Requirements",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "fb2aa50f",
+          "title": "Single-page layout; responsive grid; keyboard focus for add/remove",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "f4b8bbee",
+          "title": "Market add via paste or search; optimistic tile placeholder with skeleton loaders",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "c9f3183c",
+          "title": "Accessible colors/contrast; no flashing; timezones in user local time",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "8eae4c04",
+          "title": "Acceptance Tests (High-Level)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "6a7a9495",
+          "title": "1. Add by URL",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "b1fe1cfa",
+          "title": "Given a valid Polymarket market URL, When pasted and submitted, Then the app resolves slug/id and renders a tile within 2s with metadata and last price",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "9b539342",
+          "title": "2. Search and Add",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "fc39b7c8",
+          "title": "Given a query string, When searching, Then at least 5 results render with title and last price; When selecting one, Then a tile appears and live data begins",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "8c0df577",
+          "title": "3. Live Price Stream",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "88533a8d",
+          "title": "Given an open tile, When upstream sends price ticks, Then the tile price updates within \u22641.5s p95 and sparkline advances",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "9747ad64",
+          "title": "4. Order Book Consistency",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "59a90489",
+          "title": "Given a fresh snapshot, When deltas apply, Then cumulative size per level matches server summaries; no negative sizes; seq strictly increases",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "f3d1302a",
+          "title": "5. Reconnect & Backfill",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "09039644",
+          "title": "Given a network loss \u226510s, When reconnected, Then books and trades are consistent after an HTTP snapshot + buffered deltas",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "68992b39",
+          "title": "6. Persistence",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "804937b8",
+          "title": "Given two tiles open, When refreshing the page, Then the same tiles restore and begin streaming automatically",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "bbe4b04f",
+          "title": "Constraints & Policies",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "d4266729",
+          "title": "Only official endpoints from `tools/polymarket_docs`; no scraping",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "ab2282f6",
+          "title": "Respect documented rate limits; implement per-endpoint throttling and circuit breakers",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "f2096ca9",
+          "title": "Time is UTC internally; render in user\u2019s locale",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "a7138201",
+          "title": "Clock skew handling: rely on server timestamps where present",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "35917adc",
+          "title": "Milestones",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "05cec44b",
+          "title": "M0 \u2014 Skeleton (1 week)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "d72c3915",
+          "title": "App shell, search by API, add tiles; price (HTTP) only; local persistence",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "4488ac26",
+          "title": "M1 \u2014 Streaming (1\u20132 weeks)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "b66a4b67",
+          "title": "WebSocket pipeline; live ticks; reconnect/backfill logic; book snapshot view",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "53c2d6f4",
+          "title": "M2 \u2014 Depth & Trades (1 week)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "a1287e13",
+          "title": "Top-10 book levels with live updates; recent trade tape; performance hardening",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "5f4cc08c",
+          "title": "Open Questions",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "1ba59023",
+          "title": "Which markets require multiple `tokenId`s per question? Finalize tile UX for multi\u2011outcome markets",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "f5bfc3e8",
+          "title": "Do we expose event/series context inline or via hover/details?",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "90cf2fd3",
+          "title": "How strict are price smoothing and throttling on UI (e.g., 250ms coalescing)?",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "4c700392",
+          "title": "Future (Post\u2011MVP)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "25b83660",
+          "title": "Wallet connect and read\u2011only portfolio using `api_core_*` endpoints",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "c46c140f",
+          "title": "Price/volume alerts, saved layouts, and sharing",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "6bb2dede",
+          "title": "Execution via CLOB orders (`clob_orders_*`) and user channel streaming",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "8be848d5",
+          "title": "References (Local Docs)",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "961eefe0",
+          "title": "Index: `tools/polymarket_docs/INDEX.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "e2feeaaa",
+          "title": "Quickstart & limits: `tools/polymarket_docs/quickstart_introduction_main.md`, `tools/polymarket_docs/quickstart_introduction_rate-limits.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "5ce59668",
+          "title": "CLOB WebSocket: `tools/polymarket_docs/clob_websocket_wss-overview.md`, `tools/polymarket_docs/clob_websocket_market-channel.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "3c0776be",
+          "title": "Books & Prices: `tools/polymarket_docs/clob_prices-books_get-books.md`, `tools/polymarket_docs/api_pricing_get-market-price.md`, `tools/polymarket_docs/api_pricing_get-midpoint-price.md`",
+          "done": false,
+          "notes": "",
+          "created": "2025-09-06 02:41:38"
+        },
+        {
+          "id": "00f7c74c",
+          "title": "Implement /api/tags endpoint + client + tests",
+          "done": true,
+          "notes": "Completed on 2025-09-06; unit tests added; README updated",
+          "created": "2025-09-06 03:27:04",
+          "completed": "2025-09-06 03:27:19"
+        },
+        {
+          "id": "034644e3",
+          "title": "Implement /api/history endpoint + client + tests",
+          "done": true,
+          "notes": "Completed on 2025-09-06; unit tests added; README updated",
+          "created": "2025-09-06 03:27:04",
+          "completed": "2025-09-06 03:27:19"
+        },
+        {
+          "id": "41a9f6b0",
+          "title": "Implement /api/spread endpoint + client + tests",
+          "done": true,
+          "notes": "Completed on 2025-09-06; unit tests added; README updated",
+          "created": "2025-09-06 03:27:04",
+          "completed": "2025-09-06 03:27:19"
+        },
+        {
+          "id": "28deff05",
+          "title": "Implement /api/pricepair endpoint + helper + tests",
+          "done": true,
+          "notes": "Completed on 2025-09-06; unit tests added; README updated",
+          "created": "2025-09-06 03:27:04",
+          "completed": "2025-09-06 03:27:19"
+        }
+      ],
+      "created": "2025-09-06 02:41:38"
+    },
+    {
+      "name": "M1 Streaming",
+      "tasks": [
+        {
+          "id": "60f1d2dc",
+          "title": "WS: connect/auth and subscribe per market",
+          "done": false,
+          "notes": "Use clob_websocket_* docs; env for auth if needed",
+          "created": "2025-09-06 03:27:57"
+        },
+        {
+          "id": "8a1f162a",
+          "title": "WS: multiplex + auto-resubscribe with backoff",
+          "done": false,
+          "notes": "1s,2s,5s steady backoff; resubscribe topics",
+          "created": "2025-09-06 03:27:57"
+        },
+        {
+          "id": "077265d3",
+          "title": "WS: book sync (snapshot+delta, seq ordering)",
+          "done": false,
+          "notes": "HTTP snapshot on resume >30s; apply buffered deltas by seq",
+          "created": "2025-09-06 03:27:57"
+        },
+        {
+          "id": "1598531e",
+          "title": "WS: price/trade handlers with de-duplication",
+          "done": false,
+          "notes": "guard against duplicate ticks",
+          "created": "2025-09-06 03:27:57"
+        },
+        {
+          "id": "f18b1015",
+          "title": "Integration: reconnect + backfill tests",
+          "done": false,
+          "notes": "simulate disconnects and verify consistency",
+          "created": "2025-09-06 03:27:57"
+        },
+        {
+          "id": "0e3c7a9b",
+          "title": "Docs: streaming design in AGENTS.md",
+          "done": false,
+          "notes": "outline contracts and failure modes",
+          "created": "2025-09-06 03:27:57"
+        }
+      ],
+      "created": "2025-09-06 03:27:45"
+    }
+  ],
+  "current_phase": 2
+}

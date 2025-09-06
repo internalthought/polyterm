@@ -29,3 +29,7 @@
 ## Price pair endpoint
 
 - 2025-09-06 04:07:00: Added `/api/pricepair` to fetch last price and midpoint concurrently; added client helper `getLastAndMidpoint`. All unit tests passing (36).
+## Cleanup & Handoff
+
+- 2025-09-06 03:28:20: Checked off new tasks for tags/history/spread/pricepair; created Phase 2 (M1 Streaming) with 6 tasks queued; added memory summary; all 36 unit tests passing; prepared for WS streaming work next session.
+

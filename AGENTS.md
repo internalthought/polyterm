@@ -213,4 +213,5 @@ Codex merges `AGENTS.md` from the following locations (top-down):
 
 ## Memories
 
+- [2025-09-06 03:28:10] (main) As of 2025-09-06, server endpoints implemented: /health, /api/search, /api/resolve, /api/market, /api/price, /api/midpoint, /api/book, /api/trades, /api/tags, /api/history, /api/spread, /api/pricepair. Client has matching methods inc. listTags, getPriceHistory, getSpreads, getLastAndMidpoint. 36 unit tests pass; TS builds before tests. Next focus: WebSocket streaming per PRD (market channel topics, reconnect/backfill, book delta sequencing). Env: set POLYMARKET_API_BASE for real upstream.
 - [2025-09-06 03:08:58] (main) Server endpoints implemented: /api/search (limit/types), /api/resolve, /api/market, /api/price, /api/midpoint, /api/book, /api/trades. Tests: 23 unit tests using Node test runner; TS builds to dist before tests (pretest:unit). Env: set POLYMARKET_API_BASE to enable real HTTP client.
