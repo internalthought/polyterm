@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { handleSearch, handleMarket } from '../server/app.js';
+import { handleSearch, handleMarket, handleBook, handleTrades } from '../server/app.js';
 import { handlePrice, handleMidpoint } from '../server/app.js';
 
 test('handleSearch requires q', async () => {
@@ -71,4 +71,32 @@ test('handlePrice and handleMidpoint require tokenId and normalize number fields
   const m = await handleMidpoint({ client: fakeClient }, { tokenId: 'abc' } as any);
   assert.equal(m.status, 200);
   assert.equal((m.payload as any).data.midpoint, 0.34);
+});
+
+test('handleBook and handleTrades parse numeric options and normalize data', async () => {
+  const seen: any[] = [];
+  const fakeClient = {
+    async getBookSnapshot(tokenId: string, opts?: any) {
+      seen.push({ tokenId, opts });
+      return { tokenId, bids: [["0.40","100"]], asks: [["0.60","200"]], ts: 't', seq: 1 };
+    },
+    async getRecentTrades(tokenId: string, opts?: any) {
+      seen.push({ tokenId, opts });
+      return [
+        { tokenId, side: 'buy', price: '0.41', size: '10', ts: 't', tradeId: 't1' },
+      ];
+    },
+  } as any;
+
+  const b = await handleBook({ client: fakeClient }, { tokenId: 'tok', depth: '5' } as any);
+  assert.equal(b.status, 200);
+  assert.deepEqual(seen[0], { tokenId: 'tok', opts: { depth: 5 } });
+  assert.equal((b.payload as any).data.bids[0].price, 0.4);
+  assert.equal((b.payload as any).data.bids[0].size, 100);
+
+  const t = await handleTrades({ client: fakeClient }, { tokenId: 'tok', limit: '1' } as any);
+  assert.equal(t.status, 200);
+  assert.deepEqual(seen[1], { tokenId: 'tok', opts: { limit: 1 } });
+  assert.equal((t.payload as any).data[0].price, 0.41);
+  assert.equal((t.payload as any).data[0].size, 10);
 });

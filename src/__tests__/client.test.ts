@@ -68,3 +68,43 @@ test('HttpPolymarketClient.getLastPrice and getMidpoint call expected URLs and n
   assert.equal(last.price, 0.42);
   assert.equal(mid.midpoint, 0.5);
 });
+
+test('HttpPolymarketClient.getBookSnapshot and getRecentTrades normalize payloads', async () => {
+  const calls: string[] = [];
+  const fakeFetch = async (input: RequestInfo | URL): Promise<Response> => {
+    const u = typeof input === 'string' ? new URL(input) : new URL(input.toString());
+    calls.push(u.toString());
+    if (u.pathname.startsWith('/books/')) {
+      return new Response(
+        JSON.stringify({ tokenId: 'tok', bids: [["0.40","100"], { price: 0.39, size: '50' }], asks: [[0.60, 200]], ts: 't', seq: 7 }),
+        { status: 200 },
+      );
+    }
+    if (u.pathname.startsWith('/trades/')) {
+      return new Response(
+        JSON.stringify([
+          { tokenId: 'tok', side: 'buy', price: '0.41', size: '10', ts: 't', tradeId: 'x1' },
+          { tokenId: 'tok', side: 'sell', price: 0.42, size: 5, ts: 't', tradeId: 'x2' },
+        ]),
+        { status: 200 },
+      );
+    }
+    return new Response('{}', { status: 404 });
+  };
+
+  const client = new HttpPolymarketClient({ baseURL: 'https://api.pm', fetch: fakeFetch as any });
+  const book = await client.getBookSnapshot('tok', { depth: 10 });
+  const trades = await client.getRecentTrades('tok', { limit: 2 });
+  assert.ok(calls[0].includes('/books/tok'));
+  assert.ok(calls[0].includes('depth=10'));
+  assert.ok(calls[1].includes('/trades/tok'));
+  assert.ok(calls[1].includes('limit=2'));
+  assert.equal(book.tokenId, 'tok');
+  assert.equal(book.bids[0].price, 0.4);
+  assert.equal(book.bids[0].size, 100);
+  assert.equal(book.asks[0].price, 0.6);
+  assert.equal(book.asks[0].size, 200);
+  assert.equal(trades.length, 2);
+  assert.equal(trades[0].price, 0.41);
+  assert.equal(trades[1].size, 5);
+});

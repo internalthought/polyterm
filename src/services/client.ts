@@ -4,6 +4,8 @@ import {
   buildGetMarketBySlugURL,
   buildGetLastPriceURL,
   buildGetMidpointURL,
+  buildGetBookURL,
+  buildGetTradesURL,
 } from './request.js';
 import type { RawSearchResponse, PolymarketClient, RawSearchMarket } from './polymarket.js';
 
@@ -67,5 +69,35 @@ export class HttpPolymarketClient implements PolymarketClient {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const j = (await res.json()) as any;
     return { tokenId: String(j.tokenId ?? tokenId), midpoint: Number(j.midpoint), ts: j.ts };
+  }
+
+  async getBookSnapshot(tokenId: string, opts?: { depth?: number }) {
+    const url = buildGetBookURL(this.baseURL, tokenId, { depth: opts?.depth });
+    const res = await this.fetchFn(url, { headers: this.headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const j = (await res.json()) as any;
+    const toLevel = (x: any) => ({ price: Number(Array.isArray(x) ? x[0] : x.price), size: Number(Array.isArray(x) ? x[1] : x.size) });
+    return {
+      tokenId: String(j.tokenId ?? tokenId),
+      bids: (j.bids ?? []).map(toLevel),
+      asks: (j.asks ?? []).map(toLevel),
+      ts: j.ts,
+      seq: Number(j.seq ?? 0),
+    };
+  }
+
+  async getRecentTrades(tokenId: string, opts?: { limit?: number }) {
+    const url = buildGetTradesURL(this.baseURL, tokenId, { limit: opts?.limit });
+    const res = await this.fetchFn(url, { headers: this.headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const arr = (await res.json()) as any[];
+    return (arr ?? []).map((t) => ({
+      tokenId: String(t.tokenId ?? tokenId),
+      side: t.side,
+      price: Number(t.price),
+      size: Number(t.size),
+      ts: t.ts,
+      tradeId: String(t.tradeId ?? ''),
+    }));
   }
 }

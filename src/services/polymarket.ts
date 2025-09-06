@@ -23,6 +23,8 @@ export interface PolymarketClient {
   getMarketBySlug?(slug: string): Promise<RawSearchMarket>;
   getLastPrice?(tokenId: string): Promise<{ tokenId: string; price: number | string; ts?: string }>;
   getMidpoint?(tokenId: string): Promise<{ tokenId: string; midpoint: number | string; ts?: string }>;
+  getBookSnapshot?(tokenId: string, opts?: { depth?: number }): Promise<any>;
+  getRecentTrades?(tokenId: string, opts?: { limit?: number }): Promise<any>;
 }
 
 export type MarketRef = { id?: string; slug?: string } | null;

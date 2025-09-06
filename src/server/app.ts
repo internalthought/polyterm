@@ -88,6 +88,59 @@ export async function handleMidpoint(deps: AppDeps, params: { tokenId?: string }
   }
 }
 
+export async function handleBook(
+  deps: AppDeps,
+  params: { tokenId?: string; depth?: number | string },
+) {
+  const tokenId = (params.tokenId ?? '').trim();
+  if (!tokenId) return { status: 400, payload: { error: 'missing tokenId' } } as const;
+  const opts: any = {};
+  if (params.depth != null) {
+    const d = Number.parseInt(params.depth as any, 10);
+    if (Number.isFinite(d) && d > 0) opts.depth = d;
+  }
+  try {
+    const raw = await deps.client.getBookSnapshot?.(tokenId, Object.keys(opts).length ? opts : undefined);
+    const toLevel = (x: any) => ({ price: Number(x.price ?? (Array.isArray(x) ? x[0] : undefined)), size: Number(x.size ?? (Array.isArray(x) ? x[1] : undefined)) });
+    const data = {
+      tokenId,
+      bids: ((raw as any)?.bids ?? []).map(toLevel),
+      asks: ((raw as any)?.asks ?? []).map(toLevel),
+      ts: (raw as any)?.ts,
+      seq: Number((raw as any)?.seq ?? 0),
+    };
+    return { status: 200, payload: { data } } as const;
+  } catch (err: any) {
+    return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
+  }
+}
+
+export async function handleTrades(
+  deps: AppDeps,
+  params: { tokenId?: string; limit?: number | string },
+) {
+  const tokenId = (params.tokenId ?? '').trim();
+  if (!tokenId) return { status: 400, payload: { error: 'missing tokenId' } } as const;
+  const opts: any = {};
+  if (params.limit != null) {
+    const n = Number.parseInt(params.limit as any, 10);
+    if (Number.isFinite(n) && n > 0) opts.limit = n;
+  }
+  try {
+    const arr = await deps.client.getRecentTrades?.(tokenId, Object.keys(opts).length ? opts : undefined);
+    const data = (arr as any[]).map((t) => ({
+      tokenId: String(t.tokenId ?? tokenId),
+      side: t.side,
+      price: Number(t.price),
+      size: Number(t.size),
+      ts: t.ts,
+      tradeId: String(t.tradeId ?? ''),
+    }));
+    return { status: 200, payload: { data } } as const;
+  } catch (err: any) {
+    return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
+  }
+}
 export function createServer(deps: AppDeps) {
   const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const parsed = url.parse(req.url ?? '', true);
@@ -140,6 +193,24 @@ export function createServer(deps: AppDeps) {
     if (req.method === 'GET' && parsed.pathname === '/api/midpoint') {
       const tokenId = (parsed.query['tokenId'] ?? '').toString();
       const result = await handleMidpoint(deps, { tokenId });
+      res.writeHead(result.status);
+      res.end(JSON.stringify(result.payload));
+      return;
+    }
+
+    if (req.method === 'GET' && parsed.pathname === '/api/book') {
+      const tokenId = (parsed.query['tokenId'] ?? '').toString();
+      const depth = parsed.query['depth'] as any;
+      const result = await handleBook(deps, { tokenId, depth });
+      res.writeHead(result.status);
+      res.end(JSON.stringify(result.payload));
+      return;
+    }
+
+    if (req.method === 'GET' && parsed.pathname === '/api/trades') {
+      const tokenId = (parsed.query['tokenId'] ?? '').toString();
+      const limit = parsed.query['limit'] as any;
+      const result = await handleTrades(deps, { tokenId, limit });
       res.writeHead(result.status);
       res.end(JSON.stringify(result.payload));
       return;

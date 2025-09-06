@@ -14,15 +14,19 @@ Endpoints
 - `GET /api/search?q=<query>` → `{ data: Market[] }`
  - `GET /api/resolve?input=<url|slug|id>` → `{ slug? id? }` (alias: `/api/market/resolve`)
  - `GET /api/market?input=<url|slug|id>` → `{ data: Market }`
- - `GET /api/price?tokenId=<id>` → `{ data: { tokenId, price, ts? } }`
- - `GET /api/midpoint?tokenId=<id>` → `{ data: { tokenId, midpoint, ts? } }`
+- `GET /api/price?tokenId=<id>` → `{ data: { tokenId, price, ts? } }`
+- `GET /api/midpoint?tokenId=<id>` → `{ data: { tokenId, midpoint, ts? } }`
+ - `GET /api/book?tokenId=<id>&depth=<n?>` → `{ data: { tokenId, bids: Level[], asks: Level[], ts?, seq } }`
+ - `GET /api/trades?tokenId=<id>&limit=<n?>` → `{ data: Trade[] }`
 
 Implementation Notes
 - URL parsing: `extractMarketRef(input)` returns `{ slug }` or `{ id }` from plain input or market URLs.
 - Search: `buildPolymarketSearchURL(base, query, opts?)` constructs upstream URL; the HTTP client uses it.
 - Client: `HttpPolymarketClient` (injectable `fetch`) powers the server when `POLYMARKET_API_BASE` is set.
 - Market detail: `handleMarket(deps, { input })` resolves slug/id then calls client `getMarketBySlug`/`getMarketById` and normalizes.
- - Prices: `handlePrice`/`handleMidpoint` call client `getLastPrice`/`getMidpoint` with numeric normalization.
+- Prices: `handlePrice`/`handleMidpoint` call client `getLastPrice`/`getMidpoint` with numeric normalization.
+ - Order book: `handleBook` fetches snapshot with optional `depth`, normalizes numeric levels.
+ - Trades: `handleTrades` fetches recent trades with optional `limit`, normalizes numeric fields.
 - DTOs and normalization live under `src/domain` and `src/services`.
 
 Testing
