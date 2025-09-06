@@ -62,3 +62,17 @@ export function buildGetTagsURL(base: string): string {
   const u = new URL(`/tags`, root);
   return u.toString();
 }
+
+export function buildGetPriceHistoryURL(
+  base: string,
+  tokenId: string,
+  opts: { interval?: string; limit?: number; fromTs?: string; toTs?: string } = {},
+): string {
+  const root = base.endsWith('/') ? base.slice(0, -1) : base;
+  const u = new URL(`/prices/history/${encodeURIComponent(tokenId)}`, root);
+  if (opts.interval) u.searchParams.set('interval', opts.interval);
+  if (opts.limit != null) u.searchParams.set('limit', String(opts.limit));
+  if (opts.fromTs) u.searchParams.set('from', opts.fromTs);
+  if (opts.toTs) u.searchParams.set('to', opts.toTs);
+  return u.toString();
+}

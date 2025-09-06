@@ -150,6 +150,28 @@ export async function handleTags(deps: AppDeps) {
     return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
   }
 }
+
+export async function handleHistory(
+  deps: AppDeps,
+  params: { tokenId?: string; interval?: string; limit?: number | string; fromTs?: string; toTs?: string },
+) {
+  const tokenId = (params.tokenId ?? '').trim();
+  if (!tokenId) return { status: 400, payload: { error: 'missing tokenId' } } as const;
+  const opts: any = {};
+  if (params.interval) opts.interval = String(params.interval);
+  if (params.limit != null) {
+    const n = Number.parseInt(params.limit as any, 10);
+    if (Number.isFinite(n) && n > 0) opts.limit = n;
+  }
+  if (params.fromTs) opts.fromTs = String(params.fromTs);
+  if (params.toTs) opts.toTs = String(params.toTs);
+  try {
+    const data = await deps.client.getPriceHistory?.(tokenId, Object.keys(opts).length ? opts : undefined);
+    return { status: 200, payload: { data: data ?? [] } } as const;
+  } catch (err: any) {
+    return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
+  }
+}
 export function createServer(deps: AppDeps) {
   const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const parsed = url.parse(req.url ?? '', true);
@@ -228,6 +250,19 @@ export function createServer(deps: AppDeps) {
     // Tags
     if (req.method === 'GET' && parsed.pathname === '/api/tags') {
       const result = await handleTags(deps);
+      res.writeHead(result.status);
+      res.end(JSON.stringify(result.payload));
+      return;
+    }
+
+    // Price history
+    if (req.method === 'GET' && parsed.pathname === '/api/history') {
+      const tokenId = (parsed.query['tokenId'] ?? '').toString();
+      const interval = (parsed.query['interval'] ?? '').toString() || undefined;
+      const limit = parsed.query['limit'] as any;
+      const fromTs = (parsed.query['from'] ?? '').toString() || undefined;
+      const toTs = (parsed.query['to'] ?? '').toString() || undefined;
+      const result = await handleHistory(deps, { tokenId, interval, limit, fromTs, toTs });
       res.writeHead(result.status);
       res.end(JSON.stringify(result.payload));
       return;

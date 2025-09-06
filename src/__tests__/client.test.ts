@@ -126,3 +126,31 @@ test('HttpPolymarketClient.listTags hits /tags and returns names', async () => {
   assert.equal(u.pathname, '/tags');
   assert.deepEqual(tags, ['sports', 'politics']);
 });
+
+test('HttpPolymarketClient.getPriceHistory normalizes to [{ ts, price }]', async () => {
+  const calls: string[] = [];
+  const fakeFetch = async (input: RequestInfo | URL): Promise<Response> => {
+    const u = typeof input === 'string' ? new URL(input) : new URL(input.toString());
+    calls.push(u.toString());
+    if (u.pathname === '/prices/history/tok') {
+      return new Response(
+        JSON.stringify([
+          { ts: '2025-01-01T00:00:00Z', price: '0.40' },
+          { ts: '2025-01-01T01:00:00Z', price: 0.41 },
+        ]),
+        { status: 200 },
+      );
+    }
+    return new Response('{}', { status: 404 });
+  };
+  const client = new HttpPolymarketClient({ baseURL: 'https://api.pm', fetch: fakeFetch as any });
+  const points = await (client as any).getPriceHistory('tok', { interval: '1h', limit: 2 });
+  assert.equal(calls.length, 1);
+  const u = new URL(calls[0]);
+  assert.equal(u.pathname, '/prices/history/tok');
+  assert.equal(u.searchParams.get('interval'), '1h');
+  assert.equal(u.searchParams.get('limit'), '2');
+  assert.equal(points.length, 2);
+  assert.deepEqual(points[0], { ts: '2025-01-01T00:00:00Z', price: 0.4 });
+  assert.deepEqual(points[1], { ts: '2025-01-01T01:00:00Z', price: 0.41 });
+});

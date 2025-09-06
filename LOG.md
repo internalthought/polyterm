@@ -17,3 +17,7 @@
 ## Tags endpoint
 
 - 2025-09-06 03:35:00: Added `/api/tags` server handler plus client and URL builder. New unit tests: `buildGetTagsURL`, `HttpPolymarketClient.listTags`, `handleTags`. All unit tests passing (27).
+
+## Price history endpoint
+
+- 2025-09-06 03:48:00: Added `/api/history` with interval/limit/from/to support, client `getPriceHistory`, and `buildGetPriceHistoryURL`. New unit tests added for URL builder, client normalization, and handler options. All unit tests passing (30).

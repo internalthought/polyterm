@@ -6,6 +6,7 @@ import {
   buildGetMidpointURL,
   buildGetBookURL,
   buildGetTradesURL,
+  buildGetPriceHistoryURL,
   buildGetTagsURL,
 } from './request.js';
 import type { RawSearchResponse, PolymarketClient, RawSearchMarket } from './polymarket.js';
@@ -118,5 +119,26 @@ export class HttpPolymarketClient implements PolymarketClient {
       return arr.map((x) => String((x && (x.name ?? x.tag ?? x.id)) ?? '')).filter(Boolean);
     }
     return [];
+  }
+
+  async getPriceHistory(
+    tokenId: string,
+    opts?: { interval?: string; limit?: number; fromTs?: string; toTs?: string },
+  ): Promise<Array<{ ts: string; price: number }>> {
+    const url = buildGetPriceHistoryURL(this.baseURL, tokenId, {
+      interval: opts?.interval,
+      limit: opts?.limit,
+      fromTs: opts?.fromTs,
+      toTs: opts?.toTs,
+    });
+    const res = await this.fetchFn(url, { headers: this.headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const j = (await res.json()) as any;
+    const arr: Array<{ ts: string; price: number }> = Array.isArray(j)
+      ? j
+      : Array.isArray(j?.data)
+        ? j.data
+        : [];
+    return arr.map((p: any) => ({ ts: String(p.ts ?? p.time ?? p.t ?? ''), price: Number(p.price ?? p.p) })).filter((p) => !!p.ts && Number.isFinite(p.price));
   }
 }

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { handleSearch, handleMarket, handleBook, handleTrades } from '../server/app.js';
 import { handlePrice, handleMidpoint } from '../server/app.js';
+import { handleHistory } from '../server/app.js';
 import { handleTags } from '../server/app.js';
 
 test('handleSearch requires q', async () => {
@@ -118,4 +119,22 @@ test('handleTags returns upstream_error on client failure', async () => {
   const r = await handleTags({ client: fakeClient } as any);
   assert.equal(r.status, 502);
   assert.equal((r.payload as any).error, 'upstream_error');
+});
+
+test('handleHistory requires tokenId and passes interval/limit', async () => {
+  // missing tokenId
+  let r = await handleHistory({ client: {} as any } as any, { tokenId: '' } as any);
+  assert.equal(r.status, 400);
+
+  const seen: any[] = [];
+  const fakeClient = {
+    async getPriceHistory(tokenId: string, opts?: any) {
+      seen.push({ tokenId, opts });
+      return [ { ts: 't', price: 0.4 } ];
+    },
+  } as any;
+  r = await handleHistory({ client: fakeClient } as any, { tokenId: 'tok', interval: '1h', limit: '100' } as any);
+  assert.equal(r.status, 200);
+  assert.deepEqual(seen[0], { tokenId: 'tok', opts: { interval: '1h', limit: 100 } });
+  assert.equal((r.payload as any).data[0].price, 0.4);
 });
