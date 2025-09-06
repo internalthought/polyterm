@@ -14,3 +14,6 @@
 
 - 2025-09-06 03:08:38: Implemented discovery endpoints and core HTTP snapshots: /api/search (with limit/types), /api/resolve + /api/market (detail), /api/price, /api/midpoint, /api/book, /api/trades. Added URL builders and HttpPolymarketClient methods. All unit tests passing (23).
 
+## Tags endpoint
+
+- 2025-09-06 03:35:00: Added `/api/tags` server handler plus client and URL builder. New unit tests: `buildGetTagsURL`, `HttpPolymarketClient.listTags`, `handleTags`. All unit tests passing (27).

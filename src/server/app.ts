@@ -141,6 +141,15 @@ export async function handleTrades(
     return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
   }
 }
+
+export async function handleTags(deps: AppDeps) {
+  try {
+    const tags = await deps.client.listTags?.();
+    return { status: 200, payload: { data: tags ?? [] } } as const;
+  } catch (err: any) {
+    return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
+  }
+}
 export function createServer(deps: AppDeps) {
   const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const parsed = url.parse(req.url ?? '', true);
@@ -211,6 +220,14 @@ export function createServer(deps: AppDeps) {
       const tokenId = (parsed.query['tokenId'] ?? '').toString();
       const limit = parsed.query['limit'] as any;
       const result = await handleTrades(deps, { tokenId, limit });
+      res.writeHead(result.status);
+      res.end(JSON.stringify(result.payload));
+      return;
+    }
+
+    // Tags
+    if (req.method === 'GET' && parsed.pathname === '/api/tags') {
+      const result = await handleTags(deps);
       res.writeHead(result.status);
       res.end(JSON.stringify(result.payload));
       return;

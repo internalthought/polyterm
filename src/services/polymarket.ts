@@ -25,6 +25,7 @@ export interface PolymarketClient {
   getMidpoint?(tokenId: string): Promise<{ tokenId: string; midpoint: number | string; ts?: string }>;
   getBookSnapshot?(tokenId: string, opts?: { depth?: number }): Promise<any>;
   getRecentTrades?(tokenId: string, opts?: { limit?: number }): Promise<any>;
+  listTags?(): Promise<string[]>;
 }
 
 export type MarketRef = { id?: string; slug?: string } | null;

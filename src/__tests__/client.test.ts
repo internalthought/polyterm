@@ -108,3 +108,21 @@ test('HttpPolymarketClient.getBookSnapshot and getRecentTrades normalize payload
   assert.equal(trades[0].price, 0.41);
   assert.equal(trades[1].size, 5);
 });
+
+test('HttpPolymarketClient.listTags hits /tags and returns names', async () => {
+  const calls: string[] = [];
+  const fakeFetch = async (input: RequestInfo | URL): Promise<Response> => {
+    const u = typeof input === 'string' ? new URL(input) : new URL(input.toString());
+    calls.push(u.toString());
+    if (u.pathname === '/tags') {
+      return new Response(JSON.stringify(['sports', 'politics']), { status: 200 });
+    }
+    return new Response('{}', { status: 404 });
+  };
+  const client = new HttpPolymarketClient({ baseURL: 'https://api.pm', fetch: fakeFetch as any });
+  const tags = await (client as any).listTags();
+  assert.equal(calls.length, 1);
+  const u = new URL(calls[0]);
+  assert.equal(u.pathname, '/tags');
+  assert.deepEqual(tags, ['sports', 'politics']);
+});

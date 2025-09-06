@@ -56,3 +56,9 @@ export function buildGetTradesURL(base: string, tokenId: string, opts: { limit?:
   if (opts.limit != null) u.searchParams.set('limit', String(opts.limit));
   return u.toString();
 }
+
+export function buildGetTagsURL(base: string): string {
+  const root = base.endsWith('/') ? base.slice(0, -1) : base;
+  const u = new URL(`/tags`, root);
+  return u.toString();
+}

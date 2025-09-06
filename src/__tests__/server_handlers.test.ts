@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { handleSearch, handleMarket, handleBook, handleTrades } from '../server/app.js';
 import { handlePrice, handleMidpoint } from '../server/app.js';
+import { handleTags } from '../server/app.js';
 
 test('handleSearch requires q', async () => {
   const fakeClient = { searchMarkets: async (_q: string) => ({ markets: [] }) } as any;
@@ -99,4 +100,22 @@ test('handleBook and handleTrades parse numeric options and normalize data', asy
   assert.deepEqual(seen[1], { tokenId: 'tok', opts: { limit: 1 } });
   assert.equal((t.payload as any).data[0].price, 0.41);
   assert.equal((t.payload as any).data[0].size, 10);
+});
+
+test('handleTags returns list of tag names', async () => {
+  const fakeClient = {
+    async listTags() { return ['sports', 'politics']; },
+  } as any;
+  const r = await handleTags({ client: fakeClient } as any);
+  assert.equal(r.status, 200);
+  assert.deepEqual((r.payload as any).data, ['sports', 'politics']);
+});
+
+test('handleTags returns upstream_error on client failure', async () => {
+  const fakeClient = {
+    async listTags() { throw new Error('boom'); },
+  } as any;
+  const r = await handleTags({ client: fakeClient } as any);
+  assert.equal(r.status, 502);
+  assert.equal((r.payload as any).error, 'upstream_error');
 });

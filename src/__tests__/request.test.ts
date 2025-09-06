@@ -6,6 +6,7 @@ import {
   buildGetMarketBySlugURL,
   buildGetLastPriceURL,
   buildGetMidpointURL,
+  buildGetTagsURL,
 } from '../services/request.js';
 
 test('buildPolymarketSearchURL builds URL with query and defaults', () => {
@@ -54,4 +55,11 @@ test('price URL builders', () => {
   const u2 = new URL(mid);
   assert.equal(u1.pathname, '/prices/last/tok123');
   assert.equal(u2.pathname, '/prices/midpoint/tok123');
+});
+
+test('buildGetTagsURL builds expected path', () => {
+  const url = buildGetTagsURL('https://api.pm/');
+  const u = new URL(url);
+  assert.equal(u.origin, 'https://api.pm');
+  assert.equal(u.pathname, '/tags');
 });

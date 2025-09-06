@@ -17,12 +17,14 @@ Endpoints
 - `GET /api/price?tokenId=<id>` → `{ data: { tokenId, price, ts? } }`
 - `GET /api/midpoint?tokenId=<id>` → `{ data: { tokenId, midpoint, ts? } }`
  - `GET /api/book?tokenId=<id>&depth=<n?>` → `{ data: { tokenId, bids: Level[], asks: Level[], ts?, seq } }`
- - `GET /api/trades?tokenId=<id>&limit=<n?>` → `{ data: Trade[] }`
+- `GET /api/trades?tokenId=<id>&limit=<n?>` → `{ data: Trade[] }`
+ - `GET /api/tags` → `{ data: string[] }`
 
 Implementation Notes
 - URL parsing: `extractMarketRef(input)` returns `{ slug }` or `{ id }` from plain input or market URLs.
 - Search: `buildPolymarketSearchURL(base, query, opts?)` constructs upstream URL; the HTTP client uses it.
 - Client: `HttpPolymarketClient` (injectable `fetch`) powers the server when `POLYMARKET_API_BASE` is set.
+  - Also supports: `listTags()` using `buildGetTagsURL(base)`.
 - Market detail: `handleMarket(deps, { input })` resolves slug/id then calls client `getMarketBySlug`/`getMarketById` and normalizes.
 - Prices: `handlePrice`/`handleMidpoint` call client `getLastPrice`/`getMidpoint` with numeric normalization.
  - Order book: `handleBook` fetches snapshot with optional `depth`, normalizes numeric levels.

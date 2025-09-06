@@ -6,6 +6,7 @@ import {
   buildGetMidpointURL,
   buildGetBookURL,
   buildGetTradesURL,
+  buildGetTagsURL,
 } from './request.js';
 import type { RawSearchResponse, PolymarketClient, RawSearchMarket } from './polymarket.js';
 
@@ -99,5 +100,23 @@ export class HttpPolymarketClient implements PolymarketClient {
       ts: t.ts,
       tradeId: String(t.tradeId ?? ''),
     }));
+  }
+
+  async listTags(): Promise<string[]> {
+    const url = buildGetTagsURL(this.baseURL);
+    const res = await this.fetchFn(url, { headers: this.headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const j = (await res.json()) as any;
+    if (Array.isArray(j)) {
+      // array of strings or objects
+      if (typeof j[0] === 'string' || j.length === 0) return j as string[];
+      return (j as any[]).map((x) => String((x && (x.name ?? x.tag ?? x.id)) ?? '')).filter(Boolean);
+    }
+    if (Array.isArray(j?.tags)) {
+      const arr = j.tags as any[];
+      if (typeof arr[0] === 'string' || arr.length === 0) return arr as string[];
+      return arr.map((x) => String((x && (x.name ?? x.tag ?? x.id)) ?? '')).filter(Boolean);
+    }
+    return [];
   }
 }
