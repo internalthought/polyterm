@@ -12,6 +12,7 @@ Quick Start
 Endpoints
 - `GET /health` → `{ ok: true }`
 - `GET /api/search?q=<query>` → `{ data: Market[] }`
+ - `GET /api/resolve?input=<url|slug|id>` → `{ slug? id? }` (alias: `/api/market/resolve`)
 
 Implementation Notes
 - URL parsing: `extractMarketRef(input)` returns `{ slug }` or `{ id }` from plain input or market URLs.
@@ -22,4 +23,3 @@ Implementation Notes
 Testing
 - Unit tests only by default (fast, no sockets): `python3 tools/test.py --category unit`.
 - Node built-in test runner; TypeScript compiled to `dist/` before tests.
-
