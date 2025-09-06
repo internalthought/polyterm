@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { handleSearch, handleMarket, handleBook, handleTrades } from '../server/app.js';
 import { handlePrice, handleMidpoint } from '../server/app.js';
+import { handlePricePair } from '../server/app.js';
 import { handleSpread } from '../server/app.js';
 import { handleHistory } from '../server/app.js';
 import { handleTags } from '../server/app.js';
@@ -166,4 +167,20 @@ test('handleSpread uses upstream spreads when available', async () => {
   assert.equal(data.ask, 0.6);
   assert.equal(data.midpoint, 0.5);
   assert.equal(data.spread, 0.2);
+});
+
+test('handlePricePair requires tokenId and returns both numbers', async () => {
+  // missing tokenId
+  let r = await handlePricePair({ client: {} as any } as any, { tokenId: '' } as any);
+  assert.equal(r.status, 400);
+
+  const fakeClient = {
+    async getLastPrice(tokenId: string) { return { tokenId, price: '0.42', ts: 't' }; },
+    async getMidpoint(tokenId: string) { return { tokenId, midpoint: '0.44', ts: 't' }; },
+  } as any;
+  r = await handlePricePair({ client: fakeClient } as any, { tokenId: 'tok' } as any);
+  assert.equal(r.status, 200);
+  const data = (r.payload as any).data;
+  assert.equal(data.price, 0.42);
+  assert.equal(data.midpoint, 0.44);
 });

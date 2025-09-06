@@ -173,3 +173,24 @@ test('HttpPolymarketClient.getSpreads normalizes bid/ask', async () => {
   assert.equal(s.bid, 0.4);
   assert.equal(s.ask, 0.6);
 });
+
+test('HttpPolymarketClient.getLastAndMidpoint fetches both and returns numbers', async () => {
+  const calls: string[] = [];
+  const fakeFetch = async (input: RequestInfo | URL): Promise<Response> => {
+    const u = typeof input === 'string' ? new URL(input) : new URL(input.toString());
+    calls.push(u.toString());
+    if (u.pathname === '/prices/last/tok') {
+      return new Response(JSON.stringify({ tokenId: 'tok', price: '0.42', ts: 't' }), { status: 200 });
+    }
+    if (u.pathname === '/prices/midpoint/tok') {
+      return new Response(JSON.stringify({ tokenId: 'tok', midpoint: 0.44, ts: 't' }), { status: 200 });
+    }
+    return new Response('{}', { status: 404 });
+  };
+  const client = new HttpPolymarketClient({ baseURL: 'https://api.pm', fetch: fakeFetch as any });
+  const pair = await (client as any).getLastAndMidpoint('tok');
+  assert.equal(calls.length, 2);
+  assert.ok(calls[0].includes('/prices/last/tok'));
+  assert.ok(calls[1].includes('/prices/midpoint/tok'));
+  assert.deepEqual(pair, { tokenId: 'tok', price: 0.42, midpoint: 0.44 });
+});

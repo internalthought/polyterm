@@ -15,8 +15,9 @@ Endpoints
  - `GET /api/resolve?input=<url|slug|id>` → `{ slug? id? }` (alias: `/api/market/resolve`)
  - `GET /api/market?input=<url|slug|id>` → `{ data: Market }`
 - `GET /api/price?tokenId=<id>` → `{ data: { tokenId, price, ts? } }`
-- `GET /api/midpoint?tokenId=<id>` → `{ data: { tokenId, midpoint, ts? } }`
- - `GET /api/book?tokenId=<id>&depth=<n?>` → `{ data: { tokenId, bids: Level[], asks: Level[], ts?, seq } }`
+  - `GET /api/midpoint?tokenId=<id>` → `{ data: { tokenId, midpoint, ts? } }`
+  - `GET /api/pricepair?tokenId=<id>` → `{ data: { tokenId, price, midpoint } }` (fetches both concurrently)
+  - `GET /api/book?tokenId=<id>&depth=<n?>` → `{ data: { tokenId, bids: Level[], asks: Level[], ts?, seq } }`
  - `GET /api/trades?tokenId=<id>&limit=<n?>` → `{ data: Trade[] }`
   - `GET /api/spread?tokenId=<id>` → `{ data: { tokenId, bid, ask, midpoint, spread } }` (uses upstream spreads or derives from top-of-book)
   - `GET /api/history?tokenId=<id>&interval=<1m|5m|1h|1d>&limit=<n?>&from=<iso>&to=<iso>` → `{ data: Array<{ ts, price }> }`

@@ -25,3 +25,7 @@
 ## Spreads endpoint
 
 - 2025-09-06 04:00:00: Added `/api/spread` that prefers upstream spreads but derives from top-of-book when absent; implemented client `getSpreads` and `buildGetSpreadsURL`. Added unit tests for URL builder, client normalization, and handler (both paths). All unit tests passing (34).
+
+## Price pair endpoint
+
+- 2025-09-06 04:07:00: Added `/api/pricepair` to fetch last price and midpoint concurrently; added client helper `getLastAndMidpoint`. All unit tests passing (36).

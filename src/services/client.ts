@@ -152,4 +152,12 @@ export class HttpPolymarketClient implements PolymarketClient {
     const ask = j?.ask != null ? Number(j.ask) : null;
     return { tokenId: String(j?.tokenId ?? tokenId), bid, ask };
   }
+
+  async getLastAndMidpoint(tokenId: string): Promise<{ tokenId: string; price: number; midpoint: number }> {
+    const [last, mid] = await Promise.all([
+      this.getLastPrice(tokenId),
+      this.getMidpoint(tokenId),
+    ]);
+    return { tokenId, price: Number(last.price), midpoint: Number(mid.midpoint) };
+  }
 }

@@ -88,6 +88,21 @@ export async function handleMidpoint(deps: AppDeps, params: { tokenId?: string }
   }
 }
 
+export async function handlePricePair(deps: AppDeps, params: { tokenId?: string }) {
+  const tokenId = (params.tokenId ?? '').trim();
+  if (!tokenId) return { status: 400, payload: { error: 'missing tokenId' } } as const;
+  try {
+    const [last, mid] = await Promise.all([
+      deps.client.getLastPrice?.(tokenId as string),
+      deps.client.getMidpoint?.(tokenId as string),
+    ]);
+    const data = { tokenId, price: Number((last as any)?.price), midpoint: Number((mid as any)?.midpoint) };
+    return { status: 200, payload: { data } } as const;
+  } catch (err: any) {
+    return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
+  }
+}
+
 export async function handleBook(
   deps: AppDeps,
   params: { tokenId?: string; depth?: number | string },
@@ -256,6 +271,14 @@ export function createServer(deps: AppDeps) {
     if (req.method === 'GET' && parsed.pathname === '/api/midpoint') {
       const tokenId = (parsed.query['tokenId'] ?? '').toString();
       const result = await handleMidpoint(deps, { tokenId });
+      res.writeHead(result.status);
+      res.end(JSON.stringify(result.payload));
+      return;
+    }
+
+    if (req.method === 'GET' && parsed.pathname === '/api/pricepair') {
+      const tokenId = (parsed.query['tokenId'] ?? '').toString();
+      const result = await handlePricePair(deps, { tokenId });
       res.writeHead(result.status);
       res.end(JSON.stringify(result.payload));
       return;
