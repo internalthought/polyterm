@@ -30,3 +30,15 @@ export function buildGetMarketBySlugURL(base: string, slug: string): string {
   const u = new URL(`/markets/slug/${encodeURIComponent(slug)}`, root);
   return u.toString();
 }
+
+export function buildGetLastPriceURL(base: string, tokenId: string): string {
+  const root = base.endsWith('/') ? base.slice(0, -1) : base;
+  const u = new URL(`/prices/last/${encodeURIComponent(tokenId)}`, root);
+  return u.toString();
+}
+
+export function buildGetMidpointURL(base: string, tokenId: string): string {
+  const root = base.endsWith('/') ? base.slice(0, -1) : base;
+  const u = new URL(`/prices/midpoint/${encodeURIComponent(tokenId)}`, root);
+  return u.toString();
+}

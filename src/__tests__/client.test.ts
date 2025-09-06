@@ -43,3 +43,28 @@ test('HttpPolymarketClient.getMarketBySlug and getMarketById call correct endpoi
   assert.equal(bySlug.slug, 'rain');
   assert.equal(byId.id, '1');
 });
+
+test('HttpPolymarketClient.getLastPrice and getMidpoint call expected URLs and normalize numbers', async () => {
+  const calls: string[] = [];
+  const fakeFetch = async (input: RequestInfo | URL): Promise<Response> => {
+    const u = typeof input === 'string' ? new URL(input) : new URL(input.toString());
+    calls.push(u.toString());
+    if (u.pathname.includes('/prices/last/')) {
+      return new Response(JSON.stringify({ tokenId: 'tok', price: '0.42', ts: '2025-01-01T00:00:00Z' }), { status: 200 });
+    }
+    if (u.pathname.includes('/prices/midpoint/')) {
+      return new Response(JSON.stringify({ tokenId: 'tok', midpoint: 0.5, ts: '2025-01-01T00:00:00Z' }), { status: 200 });
+    }
+    return new Response('{}', { status: 404 });
+  };
+
+  const client = new HttpPolymarketClient({ baseURL: 'https://api.pm', fetch: fakeFetch as any });
+  const last = await client.getLastPrice('tok');
+  const mid = await client.getMidpoint('tok');
+  assert.equal(calls.length, 2);
+  assert.ok(calls[0].includes('/prices/last/tok'));
+  assert.ok(calls[1].includes('/prices/midpoint/tok'));
+  assert.equal(last.tokenId, 'tok');
+  assert.equal(last.price, 0.42);
+  assert.equal(mid.midpoint, 0.5);
+});

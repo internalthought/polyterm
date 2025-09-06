@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPolymarketSearchURL, buildGetMarketByIdURL, buildGetMarketBySlugURL } from '../services/request.js';
+import {
+  buildPolymarketSearchURL,
+  buildGetMarketByIdURL,
+  buildGetMarketBySlugURL,
+  buildGetLastPriceURL,
+  buildGetMidpointURL,
+} from '../services/request.js';
 
 test('buildPolymarketSearchURL builds URL with query and defaults', () => {
   const url = buildPolymarketSearchURL('https://api.polymarket.com', 'rain');
@@ -39,4 +45,13 @@ test('buildGetMarketByIdURL and buildGetMarketBySlugURL build expected paths', (
   assert.equal(u1.pathname, '/markets/123');
   assert.equal(u2.origin, 'https://api.pm');
   assert.equal(u2.pathname, '/markets/slug/will-it-rain');
+});
+
+test('price URL builders', () => {
+  const last = buildGetLastPriceURL('https://api.pm', 'tok123');
+  const mid = buildGetMidpointURL('https://api.pm/', 'tok123');
+  const u1 = new URL(last);
+  const u2 = new URL(mid);
+  assert.equal(u1.pathname, '/prices/last/tok123');
+  assert.equal(u2.pathname, '/prices/midpoint/tok123');
 });

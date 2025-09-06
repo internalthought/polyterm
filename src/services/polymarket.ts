@@ -21,6 +21,8 @@ export interface PolymarketClient {
   searchMarkets(query: string, opts?: { limit?: number; types?: string[] }): Promise<RawSearchResponse>;
   getMarketById?(id: string): Promise<RawSearchMarket>;
   getMarketBySlug?(slug: string): Promise<RawSearchMarket>;
+  getLastPrice?(tokenId: string): Promise<{ tokenId: string; price: number | string; ts?: string }>;
+  getMidpoint?(tokenId: string): Promise<{ tokenId: string; midpoint: number | string; ts?: string }>;
 }
 
 export type MarketRef = { id?: string; slug?: string } | null;

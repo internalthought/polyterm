@@ -64,6 +64,30 @@ export async function handleMarket(deps: AppDeps, params: { input?: string }) {
   }
 }
 
+export async function handlePrice(deps: AppDeps, params: { tokenId?: string }) {
+  const tokenId = (params.tokenId ?? '').trim();
+  if (!tokenId) return { status: 400, payload: { error: 'missing tokenId' } } as const;
+  try {
+    const raw = await deps.client.getLastPrice?.(tokenId as string);
+    const price = Number((raw as any)?.price);
+    return { status: 200, payload: { data: { tokenId, price, ts: (raw as any)?.ts } } } as const;
+  } catch (err: any) {
+    return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
+  }
+}
+
+export async function handleMidpoint(deps: AppDeps, params: { tokenId?: string }) {
+  const tokenId = (params.tokenId ?? '').trim();
+  if (!tokenId) return { status: 400, payload: { error: 'missing tokenId' } } as const;
+  try {
+    const raw = await deps.client.getMidpoint?.(tokenId as string);
+    const midpoint = Number((raw as any)?.midpoint);
+    return { status: 200, payload: { data: { tokenId, midpoint, ts: (raw as any)?.ts } } } as const;
+  } catch (err: any) {
+    return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
+  }
+}
+
 export function createServer(deps: AppDeps) {
   const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const parsed = url.parse(req.url ?? '', true);
@@ -100,6 +124,22 @@ export function createServer(deps: AppDeps) {
     if (req.method === 'GET' && parsed.pathname === '/api/market') {
       const input = (parsed.query['input'] ?? '').toString();
       const result = await handleMarket(deps, { input });
+      res.writeHead(result.status);
+      res.end(JSON.stringify(result.payload));
+      return;
+    }
+
+    // Prices
+    if (req.method === 'GET' && parsed.pathname === '/api/price') {
+      const tokenId = (parsed.query['tokenId'] ?? '').toString();
+      const result = await handlePrice(deps, { tokenId });
+      res.writeHead(result.status);
+      res.end(JSON.stringify(result.payload));
+      return;
+    }
+    if (req.method === 'GET' && parsed.pathname === '/api/midpoint') {
+      const tokenId = (parsed.query['tokenId'] ?? '').toString();
+      const result = await handleMidpoint(deps, { tokenId });
       res.writeHead(result.status);
       res.end(JSON.stringify(result.payload));
       return;

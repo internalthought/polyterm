@@ -1,4 +1,10 @@
-import { buildPolymarketSearchURL, buildGetMarketByIdURL, buildGetMarketBySlugURL } from './request.js';
+import {
+  buildPolymarketSearchURL,
+  buildGetMarketByIdURL,
+  buildGetMarketBySlugURL,
+  buildGetLastPriceURL,
+  buildGetMidpointURL,
+} from './request.js';
 import type { RawSearchResponse, PolymarketClient, RawSearchMarket } from './polymarket.js';
 
 export type HttpClientOptions = {
@@ -45,5 +51,21 @@ export class HttpPolymarketClient implements PolymarketClient {
     const res = await this.fetchFn(url, { headers: this.headers });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return (await res.json()) as RawSearchMarket;
+  }
+
+  async getLastPrice(tokenId: string): Promise<{ tokenId: string; price: number; ts?: string }> {
+    const url = buildGetLastPriceURL(this.baseURL, tokenId);
+    const res = await this.fetchFn(url, { headers: this.headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const j = (await res.json()) as any;
+    return { tokenId: String(j.tokenId ?? tokenId), price: Number(j.price), ts: j.ts };
+  }
+
+  async getMidpoint(tokenId: string): Promise<{ tokenId: string; midpoint: number; ts?: string }> {
+    const url = buildGetMidpointURL(this.baseURL, tokenId);
+    const res = await this.fetchFn(url, { headers: this.headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const j = (await res.json()) as any;
+    return { tokenId: String(j.tokenId ?? tokenId), midpoint: Number(j.midpoint), ts: j.ts };
   }
 }

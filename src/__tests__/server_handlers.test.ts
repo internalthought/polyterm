@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { handleSearch, handleMarket } from '../server/app.js';
+import { handlePrice, handleMidpoint } from '../server/app.js';
 
 test('handleSearch requires q', async () => {
   const fakeClient = { searchMarkets: async (_q: string) => ({ markets: [] }) } as any;
@@ -51,4 +52,23 @@ test('handleMarket returns upstream_error on client failure', async () => {
   const r = await handleMarket({ client: fakeClient }, { input: 'slug-here' });
   assert.equal(r.status, 502);
   assert.equal((r.payload as any).error, 'upstream_error');
+});
+
+test('handlePrice and handleMidpoint require tokenId and normalize number fields', async () => {
+  // missing tokenId
+  let r = await handlePrice({ client: {} as any }, { tokenId: '' } as any);
+  assert.equal(r.status, 400);
+
+  const fakeClient = {
+    async getLastPrice(tokenId: string) { return { tokenId, price: '0.12', ts: 't' }; },
+    async getMidpoint(tokenId: string) { return { tokenId, midpoint: '0.34', ts: 't' }; },
+  } as any;
+
+  r = await handlePrice({ client: fakeClient }, { tokenId: 'abc' } as any);
+  assert.equal(r.status, 200);
+  assert.equal((r.payload as any).data.price, 0.12);
+
+  const m = await handleMidpoint({ client: fakeClient }, { tokenId: 'abc' } as any);
+  assert.equal(m.status, 200);
+  assert.equal((m.payload as any).data.midpoint, 0.34);
 });
