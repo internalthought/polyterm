@@ -66,6 +66,13 @@ export function normalizeMarket(raw: RawSearchMarket): Market | null {
   const slug = raw.slug ?? '';
   const title = raw.title ?? raw.question ?? '';
   if (!id || !slug || !title) return null;
+  const normalizeStatus = (s?: string) => {
+    if (!s) return undefined;
+    const x = s.toLowerCase();
+    if (['open', 'active', 'trading'].includes(x)) return 'active' as const;
+    if (['closed', 'resolved', 'finalized', 'settled', 'ended'].includes(x)) return 'closed' as const;
+    return s as Market['status'];
+  };
   const volumeNum = raw.volume != null ? Number(raw.volume) : undefined;
   const oiNum = raw.openInterest != null ? Number(raw.openInterest) : undefined;
   return {
@@ -73,7 +80,7 @@ export function normalizeMarket(raw: RawSearchMarket): Market | null {
     slug,
     title,
     endTime: raw.endDate,
-    status: raw.status as Market['status'],
+    status: normalizeStatus(raw.status),
     volume: Number.isFinite(volumeNum!) ? volumeNum : undefined,
     openInterest: Number.isFinite(oiNum!) ? oiNum : undefined,
     tokenIds: raw.tokenIds,

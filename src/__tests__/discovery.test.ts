@@ -72,3 +72,12 @@ test('extractMarketRef parses slug or id from input or URL', () => {
   assert.equal(extractMarketRef(''), null);
   assert.equal(extractMarketRef('   '), null);
 });
+
+test('normalizeMarket normalizes status to active/closed when known', () => {
+  const closed = normalizeMarket({ id: '1', slug: 's', question: 'Q', status: 'resolved' });
+  const active = normalizeMarket({ id: '2', slug: 't', question: 'Q', status: 'open' });
+  const passthrough = normalizeMarket({ id: '3', slug: 'u', question: 'Q', status: 'unknown' });
+  assert.equal(closed!.status, 'closed');
+  assert.equal(active!.status, 'active');
+  assert.equal(passthrough!.status, 'unknown');
+});

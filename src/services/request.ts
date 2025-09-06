@@ -1,0 +1,21 @@
+export type SearchOptions = {
+  limit?: number;
+  types?: Array<'markets' | 'events' | 'profiles'>;
+};
+
+/**
+ * Build the official Polymarket search URL.
+ * This focuses purely on URL construction so it is unit-testable and side-effect free.
+ */
+export function buildPolymarketSearchURL(base: string, query: string, opts: SearchOptions = {}): string {
+  const root = base.endsWith('/') ? base.slice(0, -1) : base;
+  const u = new URL('/search', root);
+  u.searchParams.set('query', query);
+  const limit = opts.limit ?? 20;
+  u.searchParams.set('limit', String(limit));
+  if (opts.types && opts.types.length > 0) {
+    u.searchParams.set('types', opts.types.join(','));
+  }
+  return u.toString();
+}
+
