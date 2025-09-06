@@ -14,6 +14,18 @@ export async function handleResolve(params: { input?: string }) {
   return { status: 200, payload: ref } as const;
 }
 
+export async function handleSearch(deps: AppDeps, params: { q?: string }) {
+  const q = (params.q ?? '').toString().trim();
+  if (!q) return { status: 400, payload: { error: 'missing q' } } as const;
+  try {
+    const raw = await deps.client.searchMarkets(q);
+    const data = normalizeSearch(raw);
+    return { status: 200, payload: { data } } as const;
+  } catch (err: any) {
+    return { status: 502, payload: { error: 'upstream_error', detail: String(err?.message ?? err) } } as const;
+  }
+}
+
 export async function handleMarket(deps: AppDeps, params: { input?: string }) {
   const input = (params.input ?? '').trim();
   if (!input) return { status: 400, payload: { error: 'missing input' } } as const;
@@ -46,20 +58,9 @@ export function createServer(deps: AppDeps) {
     // Search proxy (normalized)
     if (req.method === 'GET' && parsed.pathname === '/api/search') {
       const q = (parsed.query['q'] ?? '').toString();
-      if (!q) {
-        res.writeHead(400);
-        res.end(JSON.stringify({ error: 'missing q' }));
-        return;
-      }
-      try {
-        const raw = await deps.client.searchMarkets(q);
-        const data = normalizeSearch(raw);
-        res.writeHead(200);
-        res.end(JSON.stringify({ data }));
-      } catch (err: any) {
-        res.writeHead(502);
-        res.end(JSON.stringify({ error: 'upstream_error', detail: String(err?.message ?? err) }));
-      }
+      const result = await handleSearch(deps, { q });
+      res.writeHead(result.status);
+      res.end(JSON.stringify(result.payload));
       return;
     }
 

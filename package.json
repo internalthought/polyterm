@@ -8,7 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "pretest": "npm run build",
     "test": "node --test \"dist/**/*.test.js\"",
-    "test:unit": "node --test \"dist/__tests__/discovery.test.js\" \"dist/__tests__/request.test.js\" \"dist/__tests__/client.test.js\" \"dist/__tests__/resolve.test.js\" \"dist/__tests__/market.test.js\"",
+    "test:unit": "node --test \"dist/__tests__/discovery.test.js\" \"dist/__tests__/request.test.js\" \"dist/__tests__/client.test.js\" \"dist/__tests__/resolve.test.js\" \"dist/__tests__/market.test.js\" \"dist/__tests__/server_handlers.test.js\"",
     "test:integration": "node --test \"dist/__tests__/server.test.js\"",
     "start": "node dist/server/index.js"
   },
